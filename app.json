@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Todo App",
+    "slug": "learn-react-expo-todo-app",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "android": {
+      "package": "com.anonymous.learnreactexpotodoapp"
+    }
+  }
+}
