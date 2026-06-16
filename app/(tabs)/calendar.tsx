@@ -3,16 +3,17 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 
 /** 日历扩展占位页（需求第 8 节）。 */
 export default function CalendarScreen() {
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.center}>
+    <SafeAreaView style={globalStyles.safe} edges={['top']}>
+      <View style={globalStyles.center}>
         <View style={styles.card}>
           <Ionicons name="calendar" size={48} color={colors.primary} />
           <Text style={styles.title}>功能开发中</Text>
-          <Text style={styles.subtitle}>敬请期待</Text>
+          <Text style={globalStyles.subtitle}>敬请期待</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -20,21 +21,10 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
   card: {
     width: '100%',
     maxWidth: 320,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     paddingVertical: 40,
     alignItems: 'center',
     borderWidth: 1,
@@ -46,10 +36,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: colors.textPrimary,
-  },
-  subtitle: {
-    marginTop: 6,
-    fontSize: 14,
-    color: colors.textTertiary,
   },
 });

@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
 import { StatsRow } from '@/components/StatsRow';
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
@@ -53,8 +54,8 @@ export default function ProfileScreen() {
   // 未登录状态。
   if (!loading && !isAuthenticated && !user) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top']}>
-        <View style={styles.center}>
+      <SafeAreaView style={globalStyles.safe} edges={['top']}>
+        <View style={globalStyles.center}>
           <Ionicons name="person-circle-outline" size={72} color={colors.textTertiary} />
           <Text style={styles.notLoggedText}>你还没有登录</Text>
           <TouchableOpacity
@@ -70,9 +71,9 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>我的</Text>
+    <SafeAreaView style={globalStyles.safe} edges={['top']}>
+      <View style={globalStyles.header}>
+        <Text style={globalStyles.headerTitle}>我的</Text>
         <TouchableOpacity onPress={handleMenuPress} hitSlop={8}>
           <Ionicons name="ellipsis-horizontal" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
@@ -83,7 +84,7 @@ export default function ProfileScreen() {
       ) : error && !user ? (
         <ErrorState message={error} onRetry={refresh} />
       ) : user ? (
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={globalStyles.content} showsVerticalScrollIndicator={false}>
           {/* 用户信息卡 */}
           <View style={styles.userCard}>
             <View style={styles.avatar}>
@@ -91,8 +92,8 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.userInfo}>
               <Text style={styles.userName}>{user.name}</Text>
-              <Text style={styles.userMeta}>ID：{user.id}</Text>
-              <Text style={styles.userMeta}>{user.email}</Text>
+              <Text style={globalStyles.textSecondary}>ID：{user.id}</Text>
+              <Text style={globalStyles.textSecondary}>{user.email}</Text>
             </View>
           </View>
 
@@ -105,7 +106,7 @@ export default function ProfileScreen() {
           />
 
           <View style={styles.sectionBlock}>
-            <Text style={styles.sectionTitle}>分类统计</Text>
+            <Text style={globalStyles.sectionTitle}>分类统计</Text>
             <CategoryCards counts={user.categories} />
           </View>
 
@@ -135,33 +136,6 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-    gap: 16,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
   notLoggedText: {
     marginTop: 12,
     fontSize: 15,
@@ -182,8 +156,7 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     padding: 16,
     gap: 14,
   },
@@ -209,21 +182,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.textPrimary,
   },
-  userMeta: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
   sectionBlock: {
     gap: 10,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
   menuCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     paddingHorizontal: 16,
   },
   menuRow: {
@@ -242,13 +205,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   logoutButton: {
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...globalStyles.secondaryButton,
   },
   logoutText: {
     fontSize: 15,

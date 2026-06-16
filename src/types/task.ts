@@ -12,6 +12,7 @@ export type Task = {
   note?: string;
   date: string;
   status: TaskStatus;
+  isFeatured: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -26,4 +27,5 @@ export type TaskPayload = {
   note?: string;
   date: string;
   status: TaskStatus;
+  isFeatured: boolean;
 };

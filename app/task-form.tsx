@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Loading } from '@/components/Loading';
 import { TaskForm, type TaskFormHandle, type TaskFormInitial } from '@/components/TaskForm';
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { createTask, getTaskById, updateTask } from '@/services/taskService';
 import type { TaskPayload } from '@/types/task';
 import { getToday } from '@/utils/date';
@@ -100,7 +101,7 @@ export default function TaskFormScreen() {
   const submitLabel = mode === 'create' ? '保存任务' : '保存修改';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={globalStyles.safe} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} disabled={submitting}>
           <Text style={styles.headerSide}>取消</Text>
@@ -117,7 +118,7 @@ export default function TaskFormScreen() {
 
       {loadError ? (
         <View style={styles.center}>
-          <Text style={styles.errorText}>{loadError}</Text>
+          <Text style={globalStyles.errorText}>{loadError}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Text style={styles.backButtonText}>返回</Text>
           </TouchableOpacity>
@@ -126,11 +127,11 @@ export default function TaskFormScreen() {
         <Loading />
       ) : (
         <KeyboardAvoidingView
-          style={styles.flex}
+          style={globalStyles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView
-            style={styles.flex}
+            style={globalStyles.flex}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
@@ -149,13 +150,6 @@ export default function TaskFormScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  flex: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -184,10 +178,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 16,
-  },
-  errorText: {
-    fontSize: 15,
-    color: colors.textSecondary,
   },
   backButton: {
     paddingHorizontal: 24,

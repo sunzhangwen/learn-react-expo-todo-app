@@ -23,6 +23,7 @@ const payload: TaskPayload = {
   startTime: '09:00',
   date: today,
   status: 'pending',
+  isFeatured: false,
 };
 
 describe('mockTaskApi', () => {

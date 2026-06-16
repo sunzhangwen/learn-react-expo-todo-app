@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { CATEGORIES } from '@/constants/categories';
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 
 type CategoryCardsProps = {
   counts: {
@@ -19,7 +20,7 @@ export function CategoryCards({ counts }: CategoryCardsProps) {
         <View key={category.key} style={styles.card}>
           <View style={[styles.dot, { backgroundColor: category.color }]} />
           <Text style={styles.count}>{counts[category.key]}</Text>
-          <Text style={styles.label}>{category.label}</Text>
+          <Text style={globalStyles.textSecondary}>{category.label}</Text>
         </View>
       ))}
     </View>
@@ -33,8 +34,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     paddingVertical: 16,
     alignItems: 'center',
   },
@@ -48,10 +48,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: colors.textPrimary,
-  },
-  label: {
-    marginTop: 4,
-    fontSize: 12,
-    color: colors.textSecondary,
   },
 });

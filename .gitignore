@@ -38,3 +38,6 @@ yarn-error.*
 
 # TypeScript
 *.tsbuildinfo
+
+# Screenshot
+screenshot/

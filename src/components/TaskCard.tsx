@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { getCategoryMeta } from '@/constants/categories';
 import type { Task } from '@/types/task';
 
@@ -26,7 +27,7 @@ function TaskCardComponent({ task, onPress, onLongPress, onToggleStatus }: TaskC
       activeOpacity={0.8}
     >
       <View style={[styles.categoryBar, { backgroundColor: category.color }]} />
-      <View style={styles.body}>
+      <View style={globalStyles.flex}>
         <View style={styles.headerRow}>
           <Text
             style={[styles.title, completed && styles.titleCompleted]}
@@ -41,7 +42,7 @@ function TaskCardComponent({ task, onPress, onLongPress, onToggleStatus }: TaskC
 
         <View style={styles.metaRow}>
           <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
-          <Text style={styles.metaText}>{timeText}</Text>
+          <Text style={globalStyles.textSecondary}>{timeText}</Text>
           {task.location ? (
             <>
               <Ionicons
@@ -50,10 +51,18 @@ function TaskCardComponent({ task, onPress, onLongPress, onToggleStatus }: TaskC
                 color={colors.textTertiary}
                 style={styles.metaIconSpacing}
               />
-              <Text style={styles.metaText} numberOfLines={1}>
+              <Text style={globalStyles.textSecondary} numberOfLines={1}>
                 {task.location}
               </Text>
             </>
+          ) : null}
+          {task.isFeatured ? (
+            <Ionicons
+              name="star"
+              size={14}
+              color={colors.warning}
+              style={styles.metaIconSpacing}
+            />
           ) : null}
         </View>
 
@@ -85,8 +94,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     padding: 12,
     overflow: 'hidden',
   },
@@ -98,9 +106,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     borderRadius: 2,
     marginRight: 12,
-  },
-  body: {
-    flex: 1,
   },
   headerRow: {
     flexDirection: 'row',
@@ -131,11 +136,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 6,
-  },
-  metaText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginLeft: 4,
   },
   metaIconSpacing: {
     marginLeft: 12,

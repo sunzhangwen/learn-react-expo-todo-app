@@ -47,9 +47,42 @@ src/
 ├── hooks/        # useAuth / useTasks / useUserProfile
 ├── services/     # api(axios 实例) / taskService / userService / mockData
 ├── storage/      # tokenStorage（AsyncStorage 封装）
-├── constants/    # categories / colors / config
+├── constants/    # categories / colors / config / styles
 ├── types/        # task / user 类型
 └── utils/        # date / validators
+```
+
+## 全局样式
+
+统一定义在 `src/constants/styles.ts`，通过 `globalStyles` 导出，避免各组件重复定义：
+
+| 样式名 | 用途 |
+| --- | --- |
+| `safe` | 页面安全区域容器（flex:1 + 背景色） |
+| `center` | 居中布局容器 |
+| `card` | 白色卡片（圆角 + 背景色） |
+| `header` / `headerTitle` | 页面头部布局与标题 |
+| `title` / `subtitle` | 章节标题 / 副标题 |
+| `textPrimary` / `textSecondary` / `textTertiary` | 不同层级的文字样式 |
+| `primaryButton` / `primaryButtonText` | 主色按钮及文字 |
+| `secondaryButton` / `secondaryButtonText` | 描边按钮及文字 |
+| `flex` | flex:1 容器 |
+| `content` | 内容区域（水平内边距 + 间距） |
+| `sectionTitle` | 章节标题 |
+| `divider` | 分割线 |
+| `errorText` | 错误提示文字 |
+
+使用示例：
+
+```tsx
+import { globalStyles } from '@/constants/styles';
+
+<View style={globalStyles.safe}>
+  <View style={globalStyles.header}>
+    <Text style={globalStyles.headerTitle}>标题</Text>
+  </View>
+  <Text style={globalStyles.textSecondary}>次要文字</Text>
+</View>
 ```
 
 ## 本地启动
@@ -116,16 +149,17 @@ EXPO_PUBLIC_USE_MOCK=true
 
 ## 已实现功能
 
-- [x] 首页：统计卡片、重点任务、最近任务、快捷入口，含 loading / empty / error 状态
+- [x] 首页：统计卡片、重点任务（支持多个）、最近任务、快捷入口，含 loading / empty / error 状态
 - [x] 任务列表页：日期标签栏（7 天）、FlatList、下拉刷新、悬浮新增按钮
-- [x] 任务卡片：点击进详情、点按切换完成、长按删除确认
-- [x] 新增 / 编辑任务：字段校验、键盘避让、提交禁用态
-- [x] 任务详情：完整字段展示、编辑 / 删除 / 切换状态
+- [x] 任务卡片：点击进详情、点按切换完成、长按删除确认、重点任务星标显示
+- [x] 新增 / 编辑任务：字段校验、键盘避让、提交禁用态、重点任务开关
+- [x] 任务详情：完整字段展示、编辑 / 删除 / 切换状态、重点任务状态
 - [x] 我的页面：用户信息、任务统计、分类统计、菜单、退出登录
 - [x] 日历 / 通讯占位页：「功能开发中，敬请期待」
 - [x] 登录占位页：模拟登录
 - [x] Mock 模式独立运行 + 真实 API 可配置联调
 - [x] 本地缓存：请求成功写缓存，失败读缓存恢复
+- [x] 全局样式抽取（`globalStyles`），减少组件重复定义
 
 ## 常见问题
 

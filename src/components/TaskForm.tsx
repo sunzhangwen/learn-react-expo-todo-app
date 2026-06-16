@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { CATEGORIES } from '@/constants/categories';
 import { colors } from '@/constants/colors';
@@ -23,6 +24,7 @@ export type TaskFormInitial = {
   note?: string;
   date: string;
   status?: TaskStatus;
+  isFeatured?: boolean;
 };
 
 type TaskFormProps = {
@@ -53,6 +55,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   const [endTime, setEndTime] = useState(initial.endTime ?? '');
   const [location, setLocation] = useState(initial.location ?? '');
   const [note, setNote] = useState(initial.note ?? '');
+  const [isFeatured, setIsFeatured] = useState(initial.isFeatured ?? false);
   const [errors, setErrors] = useState<Partial<Record<keyof TaskFormValues, string>>>({});
 
   const handleSubmit = useCallback(() => {
@@ -71,8 +74,9 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
       note: note.trim() || undefined,
       date: initial.date,
       status: initial.status ?? 'pending',
+      isFeatured,
     });
-  }, [title, category, startTime, endTime, location, note, initial, onSubmit]);
+  }, [title, category, startTime, endTime, location, note, isFeatured, initial, onSubmit]);
 
   useImperativeHandle(ref, () => ({ submit: handleSubmit }), [handleSubmit]);
 
@@ -170,6 +174,20 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
           textAlignVertical="top"
         />
       </Field>
+
+      {/* 重点任务 */}
+      <View style={styles.featuredRow}>
+        <View style={styles.featuredLeft}>
+          <Ionicons name="star" size={20} color={colors.warning} />
+          <Text style={styles.featuredLabel}>设为重点任务</Text>
+        </View>
+        <Switch
+          value={isFeatured}
+          onValueChange={setIsFeatured}
+          trackColor={{ false: colors.border, true: `${colors.warning}80` }}
+          thumbColor={isFeatured ? colors.warning : colors.surface}
+        />
+      </View>
 
       <TouchableOpacity
         style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
@@ -288,5 +306,24 @@ const styles = StyleSheet.create({
     color: colors.surface,
     fontSize: 16,
     fontWeight: '600',
+  },
+  featuredRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  featuredLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  featuredLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
   },
 });

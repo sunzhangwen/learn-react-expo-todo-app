@@ -12,6 +12,7 @@ import { Loading } from '@/components/Loading';
 import { StatsRow } from '@/components/StatsRow';
 import { TaskCard } from '@/components/TaskCard';
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { useTasks } from '@/hooks/useTasks';
 import type { Task } from '@/types/task';
 import { getToday } from '@/utils/date';
@@ -49,9 +50,9 @@ export default function HomeScreen() {
     [tasks],
   );
 
-  // 重点任务：今天待办的第一条。
-  const featuredTask = useMemo(
-    () => tasks.find((t) => t.date === today && t.status === 'pending') ?? null,
+  // 重点任务：今天标记为重点的待办任务列表。
+  const featuredTasks = useMemo(
+    () => tasks.filter((t) => t.date === today && t.isFeatured && t.status === 'pending'),
     [tasks, today],
   );
 
@@ -69,9 +70,9 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>首页</Text>
+    <SafeAreaView style={globalStyles.safe} edges={['top']}>
+      <View style={globalStyles.header}>
+        <Text style={globalStyles.headerTitle}>首页</Text>
         <TouchableOpacity onPress={handleCreate} hitSlop={8}>
           <Ionicons name="add-circle" size={28} color={colors.primary} />
         </TouchableOpacity>
@@ -82,7 +83,7 @@ export default function HomeScreen() {
       ) : error ? (
         <ErrorState message={error} onRetry={refresh} />
       ) : (
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={globalStyles.content} showsVerticalScrollIndicator={false}>
           <StatsRow
             items={[
               { label: '总任务', value: stats.total },
@@ -92,27 +93,34 @@ export default function HomeScreen() {
             ]}
           />
 
-          {featuredTask ? (
+          {featuredTasks.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>重点任务</Text>
-              <View style={styles.featuredCard}>
-                <Ionicons name="star" size={20} color={colors.warning} />
-                <View style={styles.featuredBody}>
-                  <Text style={styles.featuredTitle} numberOfLines={1}>
-                    {featuredTask.title}
-                  </Text>
-                  <Text style={styles.featuredTime}>{featuredTask.startTime} 开始</Text>
-                </View>
-                <TouchableOpacity onPress={() => handleOpenTask(featuredTask)} hitSlop={8}>
-                  <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-                </TouchableOpacity>
+              <Text style={globalStyles.sectionTitle}>重点任务</Text>
+              <View style={styles.list}>
+                {featuredTasks.map((task) => (
+                  <TouchableOpacity
+                    key={task.id}
+                    style={styles.featuredCard}
+                    onPress={() => handleOpenTask(task)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="star" size={20} color={colors.warning} />
+                    <View style={styles.featuredBody}>
+                      <Text style={globalStyles.textPrimary} numberOfLines={1}>
+                        {task.title}
+                      </Text>
+                      <Text style={globalStyles.textSecondary}>{task.startTime} 开始</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
           ) : null}
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>最近任务</Text>
+              <Text style={globalStyles.sectionTitle}>最近任务</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/tasks')} hitSlop={8}>
                 <Text style={styles.link}>查看全部</Text>
               </TouchableOpacity>
@@ -143,7 +151,7 @@ export default function HomeScreen() {
               style={styles.primaryButtonGradient}
             >
               <Ionicons name="add" size={20} color={colors.surface} />
-              <Text style={styles.primaryButtonText}>新增任务</Text>
+              <Text style={globalStyles.primaryButtonText}>新增任务</Text>
             </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
@@ -153,27 +161,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-    gap: 20,
-  },
   section: {
     gap: 10,
   },
@@ -181,11 +168,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.textPrimary,
   },
   link: {
     fontSize: 13,
@@ -197,23 +179,13 @@ const styles = StyleSheet.create({
   featuredCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     padding: 14,
     gap: 12,
   },
   featuredBody: {
     flex: 1,
-  },
-  featuredTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  featuredTime: {
-    marginTop: 4,
-    fontSize: 12,
-    color: colors.textSecondary,
+    gap: 4,
   },
   primaryButton: {
     height: 48,
@@ -227,10 +199,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     paddingHorizontal: 16,
-  },
-  primaryButtonText: {
-    color: colors.surface,
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

@@ -6,6 +6,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { APP_NAME } from '@/constants/config';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -52,7 +53,7 @@ export default function LoginScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.buttonGradient}
             >
-              <Text style={styles.buttonText}>{submitting ? '登录中...' : '模拟登录'}</Text>
+              <Text style={globalStyles.primaryButtonText}>{submitting ? '登录中...' : '模拟登录'}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -103,10 +104,5 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
-  },
-  buttonText: {
-    color: colors.surface,
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

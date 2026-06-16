@@ -20,6 +20,7 @@ import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
 import { TaskCard } from '@/components/TaskCard';
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { useTasks } from '@/hooks/useTasks';
 import type { Task } from '@/types/task';
 import { formatDateLabel, getToday, isToday } from '@/utils/date';
@@ -87,9 +88,9 @@ export default function TasksScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{isToday(selectedDate) ? '今天' : selectedDate}</Text>
+    <SafeAreaView style={globalStyles.safe} edges={['top']}>
+      <View style={globalStyles.header}>
+        <Text style={globalStyles.headerTitle}>{isToday(selectedDate) ? '今天' : selectedDate}</Text>
       </View>
 
       <DateTabs selectedDate={selectedDate} onSelect={setSelectedDate} />
@@ -133,19 +134,6 @@ export default function TasksScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
   dateLabel: {
     paddingHorizontal: 20,
     paddingTop: 4,

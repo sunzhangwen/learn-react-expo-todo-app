@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
 import { getCategoryMeta } from '@/constants/categories';
 import { colors } from '@/constants/colors';
+import { globalStyles } from '@/constants/styles';
 import { deleteTask, getTaskById, updateTaskStatus } from '@/services/taskService';
 import type { Task } from '@/types/task';
 import { formatDateLabel } from '@/utils/date';
@@ -140,6 +141,12 @@ export default function TaskDetailScreen() {
             value={completed ? '已完成' : '待办'}
             valueColor={completed ? colors.success : colors.warning}
           />
+          <DetailRow
+            icon={task.isFeatured ? 'star' : 'star-outline'}
+            label="重点任务"
+            value={task.isFeatured ? '是' : '否'}
+            valueColor={task.isFeatured ? colors.warning : undefined}
+          />
           <DetailRow icon="add-circle-outline" label="创建时间" value={formatDateTime(task.createdAt)} />
           <DetailRow icon="refresh-outline" label="更新时间" value={formatDateTime(task.updatedAt)} last />
         </View>
@@ -159,8 +166,8 @@ export default function TaskDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
+    <SafeAreaView style={globalStyles.safe} edges={['top', 'bottom']}>
+      <View style={globalStyles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
@@ -210,17 +217,6 @@ function formatDateTime(iso: string): string {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
   headerTitle: {
     fontSize: 17,
     fontWeight: '700',
@@ -261,8 +257,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    ...globalStyles.card,
     paddingHorizontal: 16,
   },
   detailRow: {
