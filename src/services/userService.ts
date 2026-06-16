@@ -1,21 +1,22 @@
-import { UserProfile } from '../types/user';
-import { USE_MOCK } from '../constants/config';
-import { mockUser } from '../mock/mockData';
+import api, { request } from '@/services/api';
+import { mockUserApi } from '@/services/mockData';
+import { USE_MOCK } from '@/constants/config';
+import type { ApiResponse, UserProfile } from '@/types/user';
 
-const delay = (ms = 350) => new Promise((r) => setTimeout(r, ms));
+/**
+ * 用户接口（需求第 16 节）。
+ */
 
-export const getProfile = async (): Promise<UserProfile> => {
+export async function getProfile(): Promise<ApiResponse<UserProfile>> {
   if (USE_MOCK) {
-    await delay(300 + Math.random() * 200);
-    return mockUser;
+    return mockUserApi.getProfile();
   }
-  throw new Error('Not implemented');
-};
+  return request<UserProfile>(api.get('/user/profile'));
+}
 
-export const logout = async (): Promise<boolean> => {
+export async function logout(): Promise<ApiResponse<null>> {
   if (USE_MOCK) {
-    await delay(200);
-    return true;
+    return mockUserApi.logout();
   }
-  throw new Error('Not implemented');
-};
+  return request<null>(api.post('/auth/logout'));
+}

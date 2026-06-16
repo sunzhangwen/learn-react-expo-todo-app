@@ -1,182 +1,181 @@
-import React, { useState, useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { useCallback, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
   Alert,
-  ActionSheetIOS,
-  Platform,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useFocusEffect } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useTasks } from '../../src/hooks/useTasks';
-import { TaskCard } from '../../src/components/TaskCard';
-import { Loading } from '../../src/components/Loading';
-import { EmptyState } from '../../src/components/EmptyState';
-import { ErrorState } from '../../src/components/ErrorState';
-import { DateTabs } from '../../src/components/DateTabs';
-import { colors } from '../../src/constants/colors';
-import { getDateDisplay } from '../../src/utils/date';
 
-export default function TasksPage() {
+import { DateTabs } from '@/components/DateTabs';
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorState } from '@/components/ErrorState';
+import { Loading } from '@/components/Loading';
+import { TaskCard } from '@/components/TaskCard';
+import { colors } from '@/constants/colors';
+import { useTasks } from '@/hooks/useTasks';
+import type { Task } from '@/types/task';
+import { formatDateLabel, getToday, isToday } from '@/utils/date';
+
+/** 任务列表页（需求第 7 节）。 */
+export default function TasksScreen() {
   const router = useRouter();
-  const today = new Date().toISOString().slice(0, 10);
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [selectedTask, setSelectedTask] = useState<string | null>(null);
-
+  const [selectedDate, setSelectedDate] = useState(getToday());
   const { tasks, loading, refreshing, error, refresh, toggleStatus, remove } =
     useTasks(selectedDate);
 
+  // 页面聚焦刷新（需求第 3 节）。
   useFocusEffect(
     useCallback(() => {
       refresh();
-    }, [refresh])
+    }, [refresh]),
   );
 
-  const handleTaskPress = useCallback(
-    (task: any) => {
-      router.push({ pathname: '/task-detail/[id]', params: { id: task.id } });
-    },
-    [router]
+  const handleOpen = useCallback(
+    (task: Task) => router.push(`/task-detail/${task.id}`),
+    [router],
   );
 
-  const handleNewTask = useCallback(() => {
-    router.push({ pathname: '/task-form', params: { mode: 'create', date: selectedDate } });
-  }, [router, selectedDate]);
+  const handleToggle = useCallback((task: Task) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    toggleStatus(task.id);
+  }, [toggleStatus]);
 
-  const handleTaskLongPress = useCallback((taskId: string) => {
-    setSelectedTask(taskId);
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
+  const handleLongPress = useCallback(
+    (task: Task) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Alert.alert('删除任务', `确定删除「${task.title}」吗？`, [
+        { text: '取消', style: 'cancel' },
         {
-          options: ['取消', '删除'],
-          destructiveButtonIndex: 1,
-          cancelButtonIndex: 0,
+          text: '删除',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await remove(task.id);
+            } catch (e) {
+              Alert.alert('删除失败', e instanceof Error ? e.message : '请稍后重试');
+            }
+          },
         },
-        (idx) => {
-          if (idx === 1) {
-            handleDelete(taskId);
-          }
-        }
-      );
-    } else {
-      Alert.alert('删除任务', '确定要删除这个任务吗？', [
-        { text: '取消' },
-        { text: '删除', onPress: () => handleDelete(taskId) },
       ]);
-    }
-  }, []);
-
-  const handleDelete = async (taskId: string) => {
-    try {
-      await remove(taskId);
-      Alert.alert('成功', '任务已删除');
-    } catch (e: any) {
-      Alert.alert('错误', e.message);
-    }
-  };
-
-  const handleToggle = useCallback(
-    async (taskId: string) => {
-      try {
-        await toggleStatus(taskId);
-      } catch (e: any) {
-        Alert.alert('错误', e.message);
-      }
     },
-    [toggleStatus]
+    [remove],
+  );
+
+  const handleCreate = useCallback(
+    () => router.push(`/task-form?mode=create&date=${selectedDate}`),
+    [router, selectedDate],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Task }) => (
+      <TaskCard
+        task={item}
+        onPress={handleOpen}
+        onLongPress={handleLongPress}
+        onToggleStatus={handleToggle}
+      />
+    ),
+    [handleOpen, handleLongPress, handleToggle],
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      {/* 标题和操作 */}
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>{selectedDate === today ? '今天' : '选定日期'}</Text>
+        <Text style={styles.headerTitle}>{isToday(selectedDate) ? '今天' : selectedDate}</Text>
       </View>
 
-      {/* 日期标签栏 */}
-      <DateTabs selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      <DateTabs selectedDate={selectedDate} onSelect={setSelectedDate} />
 
-      {/* 日期说明 */}
-      <Text style={styles.dateDisplay}>{getDateDisplay(selectedDate)}</Text>
+      <Text style={styles.dateLabel}>{formatDateLabel(selectedDate)}</Text>
 
-      {/* 任务列表 */}
-      {loading && !refreshing ? (
+      {loading ? (
         <Loading />
-      ) : error && tasks.length === 0 ? (
+      ) : error ? (
         <ErrorState message={error} onRetry={refresh} />
-      ) : tasks.length === 0 ? (
-        <View style={{ flex: 1 }}>
-          <EmptyState icon="checkmark-circle-outline" message="暂无任务" />
-        </View>
       ) : (
         <FlatList
           data={tasks}
-          renderItem={({ item }) => (
-            <TaskCard
-              task={item}
-              onPress={handleTaskPress}
-              onLongPress={() => handleTaskLongPress(item.id)}
-              onToggleStatus={handleToggle}
-            />
-          )}
           keyExtractor={(item) => item.id}
+          renderItem={renderItem}
           contentContainerStyle={styles.listContent}
-          refreshing={refreshing}
-          onRefresh={refresh}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={<EmptyState message="当天暂无任务" />}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          initialNumToRender={6}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />
+          }
         />
       )}
 
-      {/* 悬浮新增按钮 */}
-      <TouchableOpacity style={styles.fab} onPress={handleNewTask} activeOpacity={0.7}>
-        <Ionicons name="add" size={28} color="#fff" />
+      {/* 悬浮新增按钮（需求第 14 节） */}
+      <TouchableOpacity style={styles.fab} onPress={handleCreate} activeOpacity={0.85}>
+        <LinearGradient
+          colors={[colors.primary, '#6C5CE7']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.fabGradient}
+        >
+          <Ionicons name="add" size={32} color={colors.surface} />
+        </LinearGradient>
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingVertical: 12,
   },
-  title: {
-    fontSize: 20,
+  headerTitle: {
+    fontSize: 22,
     fontWeight: '700',
     color: colors.textPrimary,
   },
-  dateDisplay: {
+  dateLabel: {
     paddingHorizontal: 20,
-    fontSize: 12,
-    color: colors.textTertiary,
-    marginBottom: 12,
+    paddingTop: 4,
+    paddingBottom: 8,
+    fontSize: 13,
+    color: colors.textSecondary,
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingBottom: 100,
+    flexGrow: 1,
+  },
+  separator: {
+    height: 10,
   },
   fab: {
     position: 'absolute',
-    bottom: 24,
     right: 20,
+    bottom: 30,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: colors.primary,
+    overflow: 'hidden',
+    boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.2)',
+  },
+  fabGradient: {
+    width: 60,
+    height: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
+    borderRadius: 30,
   },
 });

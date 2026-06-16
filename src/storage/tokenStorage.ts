@@ -1,46 +1,71 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY, TASK_CACHE_STORAGE_KEY } from '../constants/config';
-import { UserProfile } from '../types/user';
-import { Task } from '../types/task';
 
-export const getToken = async (): Promise<string | null> => {
+import {
+  TASK_CACHE_STORAGE_KEY,
+  TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
+} from '@/constants/config';
+import type { Task } from '@/types/task';
+import type { UserProfile } from '@/types/user';
+
+/**
+ * 本地存储封装（需求第 18 节）。
+ * 页面与 Hook 只能通过此模块读写 AsyncStorage，禁止直接调用 AsyncStorage。
+ */
+
+export async function getToken(): Promise<string | null> {
   return AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-};
+}
 
-export const setToken = async (token: string) => {
+export async function setToken(token: string): Promise<void> {
   await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
-};
+}
 
-export const removeToken = async () => {
+export async function removeToken(): Promise<void> {
   await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
-};
+}
 
-export const getUser = async (): Promise<UserProfile | null> => {
-  const s = await AsyncStorage.getItem(USER_STORAGE_KEY);
-  return s ? JSON.parse(s) : null;
-};
+export async function getUser(): Promise<UserProfile | null> {
+  const raw = await AsyncStorage.getItem(USER_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+  try {
+    return JSON.parse(raw) as UserProfile;
+  } catch {
+    return null;
+  }
+}
 
-export const setUser = async (user: UserProfile) => {
+export async function setUser(user: UserProfile): Promise<void> {
   await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-};
+}
 
-export const removeUser = async () => {
+export async function removeUser(): Promise<void> {
   await AsyncStorage.removeItem(USER_STORAGE_KEY);
-};
+}
 
-export const clearAuthStorage = async () => {
-  await Promise.all([removeToken(), removeUser()]);
-};
+/** 清除认证相关缓存（token + 用户）。 */
+export async function clearAuthStorage(): Promise<void> {
+  await AsyncStorage.multiRemove([TOKEN_STORAGE_KEY, USER_STORAGE_KEY]);
+}
 
-export const getCachedTasks = async (): Promise<Task[] | null> => {
-  const s = await AsyncStorage.getItem(TASK_CACHE_STORAGE_KEY);
-  return s ? JSON.parse(s) : null;
-};
+export async function getCachedTasks(): Promise<Task[] | null> {
+  const raw = await AsyncStorage.getItem(TASK_CACHE_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+  try {
+    return JSON.parse(raw) as Task[];
+  } catch {
+    return null;
+  }
+}
 
-export const setCachedTasks = async (tasks: Task[]) => {
+export async function setCachedTasks(tasks: Task[]): Promise<void> {
   await AsyncStorage.setItem(TASK_CACHE_STORAGE_KEY, JSON.stringify(tasks));
-};
+}
 
-export const clearTaskCache = async () => {
+export async function clearTaskCache(): Promise<void> {
   await AsyncStorage.removeItem(TASK_CACHE_STORAGE_KEY);
-};
+}

@@ -1,94 +1,80 @@
-import React, { useMemo, useCallback } from 'react';
-import { View, TouchableOpacity, Text, ScrollView, StyleSheet } from 'react-native';
-import { getNext7Days, formatDate, getDayOfWeek, isToday } from '../utils/date';
-import { colors } from '../constants/colors';
+import { useMemo } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
-interface DateTabsProps {
+import { colors } from '@/constants/colors';
+import { buildDateTabs } from '@/utils/date';
+
+type DateTabsProps = {
   selectedDate: string;
-  onDateChange: (date: string) => void;
-}
+  onSelect: (date: string) => void;
+};
 
-export const DateTabs: React.FC<DateTabsProps> = ({ selectedDate, onDateChange }) => {
-  const dates = useMemo(() => getNext7Days(), []);
-
-  const handlePress = useCallback(
-    (date: string) => {
-      onDateChange(date);
-    },
-    [onDateChange]
-  );
+/**
+ * 日期标签栏（需求第 7 节）：前 2 天到后 4 天共 7 天，横向滚动。
+ */
+export function DateTabs({ selectedDate, onSelect }: DateTabsProps) {
+  // 以选中日期为中心生成 7 天。
+  const items = useMemo(() => buildDateTabs(selectedDate), [selectedDate]);
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.container}>
-      {dates.map((date) => {
-        const isSelected = date === selectedDate;
-        const today = isToday(date);
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.content}
+    >
+      {items.map((item) => {
+        const active = item.date === selectedDate;
         return (
           <TouchableOpacity
-            key={date}
-            style={[styles.tab, isSelected && styles.selectedTab]}
-            onPress={() => handlePress(date)}
+            key={item.date}
+            style={[styles.item, active && styles.itemActive]}
+            onPress={() => onSelect(item.date)}
+            activeOpacity={0.8}
           >
-            <Text style={[styles.month, isSelected && styles.selectedText]}>
-              {new Date(date + 'T00:00:00').getMonth() + 1}月
-            </Text>
-            <Text style={[styles.day, isSelected && styles.selectedText]}>
-              {getDayOfWeek(date)}
-            </Text>
-            <Text style={[styles.date, isSelected && styles.selectedText]}>
-              {new Date(date + 'T00:00:00').getDate()}
-            </Text>
-            {today && !isSelected && <View style={styles.todayDot} />}
+            <Text style={[styles.month, active && styles.textActive]}>{item.month}</Text>
+            <Text style={[styles.day, active && styles.textActive]}>{item.day}</Text>
+            <Text style={[styles.weekday, active && styles.textActive]}>{item.weekday}</Text>
           </TouchableOpacity>
         );
       })}
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    marginVertical: 12,
-  },
-  tab: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
+  content: {
+    paddingHorizontal: 20,
     paddingVertical: 8,
-    marginHorizontal: 4,
+    gap: 10,
+  },
+  item: {
+    width: 56,
+    paddingVertical: 10,
     borderRadius: 8,
+    alignItems: 'center',
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  selectedTab: {
+  itemActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
   month: {
     fontSize: 11,
     color: colors.textTertiary,
-    fontWeight: '600',
   },
   day: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginVertical: 2,
-    fontWeight: '600',
-  },
-  date: {
-    fontSize: 14,
-    color: colors.textPrimary,
+    fontSize: 18,
     fontWeight: '700',
+    color: colors.textPrimary,
+    marginVertical: 2,
   },
-  selectedText: {
-    color: '#fff',
+  weekday: {
+    fontSize: 11,
+    color: colors.textSecondary,
   },
-  todayDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.primary,
-    marginTop: 4,
+  textActive: {
+    color: colors.surface,
   },
 });

@@ -14,3 +14,10 @@ export type UserProfile = {
     activity: number;
   };
 };
+
+/** 统一 API 响应模型 */
+export type ApiResponse<T> = {
+  success: boolean;
+  data: T;
+  message: string;
+};

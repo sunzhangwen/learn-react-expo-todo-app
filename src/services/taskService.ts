@@ -1,86 +1,65 @@
-import { Task } from '../types/task';
-import { USE_MOCK } from '../constants/config';
-import { mockTasks } from '../mock/mockData';
+import api, { request } from '@/services/api';
+import { mockTaskApi } from '@/services/mockData';
+import { USE_MOCK } from '@/constants/config';
+import type { ApiResponse } from '@/types/user';
+import type { Task, TaskPayload, TaskStatus } from '@/types/task';
 
-const delay = (ms = 350) => new Promise((r) => setTimeout(r, ms));
+/**
+ * 任务接口（需求第 16 节）。
+ * USE_MOCK=true 时走集中 Mock 数据，否则调用真实后端。
+ */
 
-export const getTasks = async (date?: string): Promise<Task[]> => {
+export async function getTasks(date: string): Promise<ApiResponse<Task[]>> {
   if (USE_MOCK) {
-    await delay(300 + Math.random() * 200);
-    return mockTasks.filter((t) => !date || t.date === date);
+    return mockTaskApi.getTasks(date);
   }
-  // Real API integration placeholder
-  throw new Error('Not implemented');
-};
+  return request<Task[]>(api.get(`/tasks?date=${encodeURIComponent(date)}`));
+}
 
-export const getAllTasks = async (): Promise<Task[]> => {
+export async function getAllTasks(): Promise<ApiResponse<Task[]>> {
   if (USE_MOCK) {
-    await delay(300 + Math.random() * 200);
-    return mockTasks;
+    return mockTaskApi.getAllTasks();
   }
-  throw new Error('Not implemented');
-};
+  return request<Task[]>(api.get('/tasks'));
+}
 
-export const getTaskById = async (id: string): Promise<Task | null> => {
+export async function getTaskById(id: string): Promise<ApiResponse<Task | null>> {
   if (USE_MOCK) {
-    await delay(300 + Math.random() * 200);
-    return mockTasks.find((t) => t.id === id) || null;
+    return mockTaskApi.getTaskById(id);
   }
-  throw new Error('Not implemented');
-};
+  return request<Task | null>(api.get(`/tasks/${id}`));
+}
 
-export const createTask = async (payload: Partial<Task>): Promise<Task> => {
+export async function createTask(payload: TaskPayload): Promise<ApiResponse<Task>> {
   if (USE_MOCK) {
-    await delay(300 + Math.random() * 200);
-    const newTask: Task = {
-      id: String(Date.now()),
-      title: payload.title || 'Untitled',
-      category: (payload as any).category || 'work',
-      startTime: payload.startTime || '00:00',
-      endTime: payload.endTime,
-      location: payload.location,
-      note: payload.note,
-      date: payload.date || new Date().toISOString().slice(0, 10),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    mockTasks.push(newTask);
-    return newTask;
+    return mockTaskApi.createTask(payload);
   }
-  throw new Error('Not implemented');
-};
+  return request<Task>(api.post('/tasks', payload));
+}
 
-export const updateTask = async (id: string, payload: Partial<Task>): Promise<Task | null> => {
+export async function updateTask(
+  id: string,
+  payload: TaskPayload,
+): Promise<ApiResponse<Task>> {
   if (USE_MOCK) {
-    await delay(300 + Math.random() * 200);
-    const idx = mockTasks.findIndex((t) => t.id === id);
-    if (idx === -1) return null;
-    mockTasks[idx] = { ...mockTasks[idx], ...payload, updatedAt: new Date().toISOString() };
-    return mockTasks[idx];
+    return mockTaskApi.updateTask(id, payload);
   }
-  throw new Error('Not implemented');
-};
+  return request<Task>(api.put(`/tasks/${id}`, payload));
+}
 
-export const updateTaskStatus = async (id: string, status: 'pending' | 'completed') => {
+export async function updateTaskStatus(
+  id: string,
+  status: TaskStatus,
+): Promise<ApiResponse<Task>> {
   if (USE_MOCK) {
-    await delay(200 + Math.random() * 200);
-    const t = mockTasks.find((x) => x.id === id);
-    if (!t) throw new Error('Not found');
-    t.status = status;
-    t.updatedAt = new Date().toISOString();
-    return t;
+    return mockTaskApi.updateTaskStatus(id, status);
   }
-  throw new Error('Not implemented');
-};
+  return request<Task>(api.patch(`/tasks/${id}/status`, { status }));
+}
 
-export const deleteTask = async (id: string) => {
+export async function deleteTask(id: string): Promise<ApiResponse<{ id: string }>> {
   if (USE_MOCK) {
-    await delay(200 + Math.random() * 200);
-    const idx = mockTasks.findIndex((t) => t.id === id);
-    if (idx === -1) throw new Error('Not found');
-    mockTasks.splice(idx, 1);
-    return true;
+    return mockTaskApi.deleteTask(id);
   }
-  throw new Error('Not implemented');
-};
+  return request<{ id: string }>(api.delete(`/tasks/${id}`));
+}

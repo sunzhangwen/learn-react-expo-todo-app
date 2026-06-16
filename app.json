@@ -1,14 +1,31 @@
 {
   "expo": {
-    "name": "Todo App",
-    "slug": "learn-react-expo-todo-app",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "name": "我的日程清单",
+    "slug": "react-expo-todo-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "todoapp",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#F5F7FA"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
     "android": {
-      "package": "com.anonymous.learnreactexpotodoapp"
-    }
+      "adaptiveIcon": {
+        "backgroundColor": "#F5F7FA"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

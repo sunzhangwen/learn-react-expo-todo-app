@@ -1,30 +1,30 @@
-import React from 'react';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { colors } from '../constants/colors';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-interface LoadingProps {
+import { colors } from '@/constants/colors';
+
+type LoadingProps = {
   message?: string;
-}
+};
 
-export const Loading: React.FC<LoadingProps> = ({ message = '加载中...' }) => {
+export function Loading({ message = '加载中...' }: LoadingProps) {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={colors.primary} />
       <Text style={styles.text}>{message}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
+    padding: 20,
   },
   text: {
     marginTop: 12,
-    fontSize: 16,
+    fontSize: 14,
     color: colors.textSecondary,
   },
 });
