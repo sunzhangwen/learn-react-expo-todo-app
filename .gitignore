@@ -41,3 +41,6 @@ yarn-error.*
 
 # Screenshot
 screenshot/
+
+# Others
+*-requirement.md

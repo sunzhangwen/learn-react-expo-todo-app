@@ -14,6 +14,7 @@ import {
   validateTaskForm,
   type TaskFormValues,
 } from '@/utils/validators';
+import { TimePickerModal } from './TimePickerModal';
 
 export type TaskFormInitial = {
   title?: string;
@@ -57,6 +58,39 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   const [note, setNote] = useState(initial.note ?? '');
   const [isFeatured, setIsFeatured] = useState(initial.isFeatured ?? false);
   const [errors, setErrors] = useState<Partial<Record<keyof TaskFormValues, string>>>({});
+
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [pickerTarget, setPickerTarget] = useState<'start' | 'end'>('start');
+
+  const openPicker = useCallback((target: 'start' | 'end') => {
+    setPickerTarget(target);
+    setPickerVisible(true);
+  }, []);
+
+  const handlePickerConfirm = useCallback(
+    (hour: string, minute: string) => {
+      const value = `${hour}:${minute}`;
+      if (pickerTarget === 'start') {
+        setStartTime(value);
+      } else {
+        setEndTime(value);
+      }
+      setPickerVisible(false);
+    },
+    [pickerTarget],
+  );
+
+  const handlePickerCancel = useCallback(() => {
+    setPickerVisible(false);
+  }, []);
+
+  const parseTime = useCallback((time: string) => {
+    if (time && time.includes(':')) {
+      const [h, m] = time.split(':');
+      return { hour: h, minute: m };
+    }
+    return { hour: '08', minute: '00' };
+  }, []);
 
   const handleSubmit = useCallback(() => {
     const values: TaskFormValues = { title, startTime, endTime, location, note };
@@ -125,29 +159,45 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
       <View style={styles.timeRow}>
         <View style={styles.timeCol}>
           <Field label="开始时间" required error={errors.startTime}>
-            <TextInput
-              style={styles.input}
-              placeholder="HH:mm"
-              placeholderTextColor={colors.textTertiary}
-              value={startTime}
-              maxLength={5}
-              onChangeText={setStartTime}
-            />
+            <TouchableOpacity
+              style={styles.timeInput}
+              onPress={() => openPicker('start')}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[styles.timeText, !startTime && styles.timePlaceholder]}
+              >
+                {startTime || 'HH:mm'}
+              </Text>
+              <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
+            </TouchableOpacity>
           </Field>
         </View>
         <View style={styles.timeCol}>
           <Field label="结束时间" error={errors.endTime}>
-            <TextInput
-              style={styles.input}
-              placeholder="HH:mm（选填）"
-              placeholderTextColor={colors.textTertiary}
-              value={endTime}
-              maxLength={5}
-              onChangeText={setEndTime}
-            />
+            <TouchableOpacity
+              style={styles.timeInput}
+              onPress={() => openPicker('end')}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[styles.timeText, !endTime && styles.timePlaceholder]}
+              >
+                {endTime || 'HH:mm（选填）'}
+              </Text>
+              <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
+            </TouchableOpacity>
           </Field>
         </View>
       </View>
+
+      <TimePickerModal
+        visible={pickerVisible}
+        initialHour={parseTime(pickerTarget === 'start' ? startTime : endTime).hour}
+        initialMinute={parseTime(pickerTarget === 'start' ? startTime : endTime).minute}
+        onConfirm={handlePickerConfirm}
+        onCancel={handlePickerCancel}
+      />
 
       {/* 地点 */}
       <Field label="任务地点" error={errors.location}>
@@ -285,6 +335,24 @@ const styles = StyleSheet.create({
   },
   timeCol: {
     flex: 1,
+  },
+  timeInput: {
+    height: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  timeText: {
+    fontSize: 14,
+    color: colors.textPrimary,
+  },
+  timePlaceholder: {
+    color: colors.textTertiary,
   },
   errorText: {
     marginTop: 6,

@@ -43,7 +43,7 @@ app/
 
 ```text
 src/
-├── components/   # 通用与业务组件（TaskCard / TaskForm / DateTabs / 状态组件等）
+├── components/   # 通用与业务组件（TaskCard / TaskForm / TimePickerModal / DateTabs / 状态组件等）
 ├── hooks/        # useAuth / useTasks / useUserProfile
 ├── services/     # api(axios 实例) / taskService / userService / mockData
 ├── storage/      # tokenStorage（AsyncStorage 封装）
@@ -152,7 +152,8 @@ EXPO_PUBLIC_USE_MOCK=true
 - [x] 首页：统计卡片、重点任务（支持多个）、最近任务、快捷入口，含 loading / empty / error 状态
 - [x] 任务列表页：日期标签栏（7 天）、FlatList、下拉刷新、悬浮新增按钮
 - [x] 任务卡片：点击进详情、点按切换完成、长按删除确认、重点任务星标显示
-- [x] 新增 / 编辑任务：字段校验、键盘避让、提交禁用态、重点任务开关
+- [x] 新增 / 编辑任务：字段校验、键盘避让、提交禁用态、重点任务开关、时间滚轮选择器
+- [x] 时间选择滚轮：点击时间输入区域弹出底部面板，滚动选择时/分，自动吸附，边界回弹
 - [x] 任务详情：完整字段展示、编辑 / 删除 / 切换状态、重点任务状态
 - [x] 我的页面：用户信息、任务统计、分类统计、菜单、退出登录
 - [x] 日历 / 通讯占位页：「功能开发中，敬请期待」
