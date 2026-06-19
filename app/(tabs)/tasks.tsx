@@ -23,6 +23,7 @@ import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { useTasks } from '@/hooks/useTasks';
 import type { Task } from '@/types/task';
+import { alert, confirmAsync } from '@/utils/alert';
 import { formatDateLabel, getToday, isToday } from '@/utils/date';
 
 /** 任务列表页（需求第 7 节）。 */
@@ -52,20 +53,11 @@ export default function TasksScreen() {
   const handleLongPress = useCallback(
     (task: Task) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      Alert.alert('删除任务', `确定删除「${task.title}」吗？`, [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '删除',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await remove(task.id);
-            } catch (e) {
-              Alert.alert('删除失败', e instanceof Error ? e.message : '请稍后重试');
-            }
-          },
-        },
-      ]);
+      confirmAsync('删除任务', `确定删除「${task.title}」吗？`, () => {
+        remove(task.id).catch((e) => {
+          alert('删除失败', e instanceof Error ? e.message : '请稍后重试');
+        });
+      });
     },
     [remove],
   );

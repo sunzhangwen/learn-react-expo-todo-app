@@ -22,7 +22,7 @@ export const USER_STORAGE_KEY = '@todo/user';
 export const TASK_CACHE_STORAGE_KEY = '@todo/tasks';
 
 /** 应用名称。 */
-export const APP_NAME = '日程 Todo';
+export const APP_NAME = '日程助手';
 
 /** 默认任务分类。 */
 export const DEFAULT_TASK_CATEGORY: TaskCategory = 'work';

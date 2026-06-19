@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryCards } from '@/components/CategoryCards';
@@ -12,6 +12,7 @@ import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { alert, confirmAsync } from '@/utils/alert';
 
 const MENU_ITEMS: { key: string; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
   { key: 'profile', label: '个人资料', icon: 'person-outline' },
@@ -34,21 +35,15 @@ export default function ProfileScreen() {
   );
 
   const handleMenuPress = useCallback(() => {
-    Alert.alert('提示', '功能开发中');
+    alert('提示', '功能开发中');
   }, []);
 
   const handleLogout = useCallback(() => {
-    Alert.alert('退出登录', '确定要退出登录吗？', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '退出',
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/login');
-        },
-      },
-    ]);
+    confirmAsync('退出登录', '确定要退出登录吗？', () => {
+      logout()
+        .then(() => router.replace('/login'))
+        .catch(() => router.replace('/login'));
+    });
   }, [logout, router]);
 
   // 未登录状态。

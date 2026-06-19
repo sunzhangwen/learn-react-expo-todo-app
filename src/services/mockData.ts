@@ -1,6 +1,6 @@
 import { getToday } from '@/utils/date';
 import type { Task, TaskPayload, TaskStatus } from '@/types/task';
-import type { ApiResponse, UserProfile } from '@/types/user';
+import type { ApiResponse, LoginResponse, UserProfile } from '@/types/user';
 
 /**
  * 集中维护的 Mock 数据与 Mock 接口（需求第 17 节）。
@@ -158,6 +158,15 @@ const mockUser: UserProfile = {
 };
 
 export const mockUserApi = {
+  async login(): Promise<ApiResponse<LoginResponse>> {
+    return delay(
+      ok(
+        { token: MOCK_TOKEN, user: { ...mockUser } },
+        '登录成功',
+      ),
+    );
+  },
+
   async getProfile(): Promise<ApiResponse<UserProfile>> {
     // 根据当前任务实时计算统计，保证“我的”页面数据与任务一致。
     const todayPending = mockTasks.filter(

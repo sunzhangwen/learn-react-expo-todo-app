@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,6 +18,7 @@ import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { createTask, getTaskById, updateTask } from '@/services/taskService';
 import type { TaskPayload } from '@/types/task';
+import { alert } from '@/utils/alert';
 import { getToday } from '@/utils/date';
 
 /** 任务表单页（需求第 9 节）：新增与编辑共用。 */
@@ -90,7 +90,7 @@ export default function TaskFormScreen() {
         router.back();
       } catch (e) {
         // 失败后保留表单内容并提示。
-        Alert.alert('保存失败', e instanceof Error ? e.message : '请稍后重试');
+        alert('保存失败', e instanceof Error ? e.message : '请稍后重试');
       } finally {
         setSubmitting(false);
       }

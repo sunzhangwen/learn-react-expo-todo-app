@@ -14,6 +14,7 @@ import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { deleteTask, getTaskById, updateTaskStatus } from '@/services/taskService';
 import type { Task } from '@/types/task';
+import { alert, confirmAsync } from '@/utils/alert';
 import { formatDateLabel } from '@/utils/date';
 
 /** 任务详情页（需求第 10 节）。 */
@@ -67,7 +68,7 @@ export default function TaskDetailScreen() {
       const res = await updateTaskStatus(task.id, next);
       setTask(res.data);
     } catch (e) {
-      Alert.alert('操作失败', e instanceof Error ? e.message : '请稍后重试');
+      alert('操作失败', e instanceof Error ? e.message : '请稍后重试');
     }
   }, [task]);
 
@@ -76,21 +77,13 @@ export default function TaskDetailScreen() {
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert('删除任务', `确定删除「${task.title}」吗？`, [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '删除',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteTask(task.id);
-            router.back();
-          } catch (e) {
-            Alert.alert('删除失败', e instanceof Error ? e.message : '请稍后重试');
-          }
-        },
-      },
-    ]);
+    confirmAsync('删除任务', `确定删除「${task.title}」吗？`, () => {
+      deleteTask(task.id)
+        .then(() => router.back())
+        .catch((e) => {
+          alert('删除失败', e instanceof Error ? e.message : '请稍后重试');
+        });
+    });
   }, [task, router]);
 
   const handleEdit = useCallback(() => {

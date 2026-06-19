@@ -1,4 +1,4 @@
-# 日程 Todo App
+# 日程助手 App
 
 基于 **React Native + Expo Router** 的移动端日程式 Todo 应用。支持按日期查看任务、增删改、切换完成状态、首页概览与「我的」统计；内置 Mock 模式可独立运行，也可切换到真实 Node.js 后端 API 联调。
 
@@ -19,8 +19,8 @@
 
 ```text
 app/
-├── _layout.tsx              # 根 Stack：注册 Tab 组 / 登录 / 任务表单 / 任务详情
-├── login.tsx                # 登录占位页
+├── _layout.tsx              # 根 Stack：AuthProvider + 登录态守卫
+├── login.tsx                # 登录页（邮箱 + 密码）
 ├── task-form.tsx            # 新增 / 编辑共用表单页
 ├── task-detail/[id].tsx     # 任务详情页（动态路由）
 └── (tabs)/
@@ -37,19 +37,20 @@ app/
 - 新增任务：`/task-form?mode=create&date=YYYY-MM-DD`
 - 编辑任务：`/task-form?mode=edit&id=<taskId>`
 - 任务详情：`/task-detail/<taskId>`
-- 退出登录：`router.replace('/login')`
+- 未登录时自动跳转 `/login`（登录态守卫）
+- 登录成功后自动跳转 `/(tabs)`
 
 ## 项目目录结构
 
 ```text
 src/
 ├── components/   # 通用与业务组件（TaskCard / TaskForm / TimePickerModal / DateTabs / 状态组件等）
-├── hooks/        # useAuth / useTasks / useUserProfile
+├── hooks/        # useAuth(Context) / useTasks / useUserProfile
 ├── services/     # api(axios 实例) / taskService / userService / mockData
 ├── storage/      # tokenStorage（AsyncStorage 封装）
 ├── constants/    # categories / colors / config / styles
 ├── types/        # task / user 类型
-└── utils/        # date / validators
+└── utils/        # date / validators / alert（跨平台弹窗）
 ```
 
 ## 全局样式
@@ -131,6 +132,7 @@ EXPO_PUBLIC_USE_MOCK=true
 
 | 函数 | 方法 | 路径 |
 | --- | --- | --- |
+| `login(email, password)` | POST | `/auth/login` |
 | `getTasks(date)` | GET | `/tasks?date=YYYY-MM-DD` |
 | `getAllTasks()` | GET | `/tasks` |
 | `getTaskById(id)` | GET | `/tasks/:id` |
@@ -140,6 +142,20 @@ EXPO_PUBLIC_USE_MOCK=true
 | `deleteTask(id)` | DELETE | `/tasks/:id` |
 | `getProfile()` | GET | `/user/profile` |
 | `logout()` | POST | `/auth/logout` |
+
+后端接口详细规范参见 `API_SPEC.md`。
+
+## 认证与登录
+
+- 登录页支持邮箱 + 密码登录，包含邮箱格式校验和密码显示/隐藏切换。
+- `useAuth` 基于 React Context 实现，`AuthProvider` 包裹在根布局中，全 App 共享同一份认证状态。
+- 根布局 `_layout.tsx` 包含登录态守卫：未登录自动跳转登录页，已登录自动跳转首页。
+- `USE_MOCK=true` 时登录页走模拟登录，`USE_MOCK=false` 时调用真实后端 `POST /auth/login`。
+
+## 跨平台兼容
+
+- 提示/确认弹窗统一使用 `src/utils/alert.ts`，移动端用 `Alert.alert`，网页端用 `window.alert` / `window.confirm`。
+- 登录页使用 `KeyboardAvoidingView` 处理键盘遮挡，iOS 使用 `behavior="padding"`，Android 由系统自动处理。
 
 ## GitHub 提交前脱敏
 
@@ -157,10 +173,14 @@ EXPO_PUBLIC_USE_MOCK=true
 - [x] 任务详情：完整字段展示、编辑 / 删除 / 切换状态、重点任务状态
 - [x] 我的页面：用户信息、任务统计、分类统计、菜单、退出登录
 - [x] 日历 / 通讯占位页：「功能开发中，敬请期待」
-- [x] 登录占位页：模拟登录
+- [x] 登录页：邮箱 + 密码登录、邮箱格式校验、密码显示/隐藏切换
+- [x] 登录态守卫：未登录自动跳转登录页
+- [x] 认证状态 Context 共享（AuthProvider）
 - [x] Mock 模式独立运行 + 真实 API 可配置联调
 - [x] 本地缓存：请求成功写缓存，失败读缓存恢复
 - [x] 全局样式抽取（`globalStyles`），减少组件重复定义
+- [x] 跨平台弹窗适配（移动端 / 网页端）
+- [x] 后端接口规范文档（API_SPEC.md）
 
 ## 常见问题
 

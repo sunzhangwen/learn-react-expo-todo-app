@@ -15,6 +15,12 @@ export type UserProfile = {
   };
 };
 
+/** 登录接口响应 data */
+export type LoginResponse = {
+  token: string;
+  user: UserProfile;
+};
+
 /** 统一 API 响应模型 */
 export type ApiResponse<T> = {
   success: boolean;
