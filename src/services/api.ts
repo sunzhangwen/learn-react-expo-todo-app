@@ -8,7 +8,8 @@ import type { ApiResponse } from '@/types/user';
  * axios 实例与拦截器（需求第 16 节）。
  * 页面组件不得直接调用该实例，必须通过 services 层。
  */
-const api: AxiosInstance = axios.create({
+// eslint-disable-next-line import/no-named-as-default-member
+const instance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: REQUEST_TIMEOUT,
   headers: {
@@ -17,7 +18,7 @@ const api: AxiosInstance = axios.create({
 });
 
 // 请求拦截器：附加 token。
-api.interceptors.request.use(async (config) => {
+instance.interceptors.request.use(async (config) => {
   const token = await getToken();
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`);
@@ -26,7 +27,7 @@ api.interceptors.request.use(async (config) => {
 });
 
 // 响应拦截器：统一返回响应体；处理 401 与错误信息。
-api.interceptors.response.use(
+instance.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError<{ message?: string }>) => {
     if (error.response?.status === 401) {
@@ -48,4 +49,4 @@ export async function request<T>(promise: Promise<unknown>): Promise<ApiResponse
   return promise as Promise<ApiResponse<T>>;
 }
 
-export default api;
+export default instance;

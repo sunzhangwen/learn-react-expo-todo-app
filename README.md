@@ -20,7 +20,7 @@
 ```text
 app/
 ├── _layout.tsx              # 根 Stack：AuthProvider + 登录态守卫
-├── login.tsx                # 登录页（邮箱 + 密码）
+├── login.tsx                # 登录/注册页（邮箱 + 密码 + 用户名）
 ├── task-form.tsx            # 新增 / 编辑共用表单页
 ├── task-detail/[id].tsx     # 任务详情页（动态路由）
 └── (tabs)/
@@ -132,6 +132,7 @@ EXPO_PUBLIC_USE_MOCK=true
 
 | 函数 | 方法 | 路径 |
 | --- | --- | --- |
+| `register(payload)` | POST | `/auth/register` |
 | `login(email, password)` | POST | `/auth/login` |
 | `getTasks(date)` | GET | `/tasks?date=YYYY-MM-DD` |
 | `getAllTasks()` | GET | `/tasks` |
@@ -148,6 +149,7 @@ EXPO_PUBLIC_USE_MOCK=true
 ## 认证与登录
 
 - 登录页支持邮箱 + 密码登录，包含邮箱格式校验和密码显示/隐藏切换。
+- 登录页支持注册功能：点击"没有账号？去注册"切换到注册模式，填写用户名、邮箱、密码后注册，注册成功提示并自动跳转回登录页。
 - `useAuth` 基于 React Context 实现，`AuthProvider` 包裹在根布局中，全 App 共享同一份认证状态。
 - 根布局 `_layout.tsx` 包含登录态守卫：未登录自动跳转登录页，已登录自动跳转首页。
 - `USE_MOCK=true` 时登录页走模拟登录，`USE_MOCK=false` 时调用真实后端 `POST /auth/login`。
@@ -174,6 +176,7 @@ EXPO_PUBLIC_USE_MOCK=true
 - [x] 我的页面：用户信息、任务统计、分类统计、菜单、退出登录
 - [x] 日历 / 通讯占位页：「功能开发中，敬请期待」
 - [x] 登录页：邮箱 + 密码登录、邮箱格式校验、密码显示/隐藏切换
+- [x] 注册功能：登录页切换注册模式、用户名/邮箱/密码表单、注册成功提示并跳转登录页
 - [x] 登录态守卫：未登录自动跳转登录页
 - [x] 认证状态 Context 共享（AuthProvider）
 - [x] Mock 模式独立运行 + 真实 API 可配置联调

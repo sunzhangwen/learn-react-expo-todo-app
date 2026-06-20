@@ -21,6 +21,13 @@ export type LoginResponse = {
   user: UserProfile;
 };
 
+/** 注册接口请求体 */
+export type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 /** 统一 API 响应模型 */
 export type ApiResponse<T> = {
   success: boolean;

@@ -12,6 +12,7 @@ let mod: MockDataModule;
 
 beforeEach(() => {
   jest.resetModules();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   mod = require('@/services/mockData');
 });
 
@@ -106,6 +107,30 @@ describe('mockTaskApi', () => {
 });
 
 describe('mockUserApi', () => {
+  it('register 成功注册返回成功', async () => {
+    const res = await mod.mockUserApi.register({
+      name: '测试用户',
+      email: 'test@example.com',
+      password: 'password123',
+    });
+    expect(res.success).toBe(true);
+    expect(res.message).toBe('注册成功');
+  });
+
+  it('register 缺少必填字段抛出错误', async () => {
+    await expect(
+      mod.mockUserApi.register({ name: '', email: 'test@example.com', password: 'password123' }),
+    ).rejects.toThrow('请填写完整信息');
+    
+    await expect(
+      mod.mockUserApi.register({ name: '测试用户', email: '', password: 'password123' }),
+    ).rejects.toThrow('请填写完整信息');
+    
+    await expect(
+      mod.mockUserApi.register({ name: '测试用户', email: 'test@example.com', password: '' }),
+    ).rejects.toThrow('请填写完整信息');
+  });
+
   it('getProfile 依据当前任务实时计算统计', async () => {
     const res = await mod.mockUserApi.getProfile();
     expect(res.success).toBe(true);

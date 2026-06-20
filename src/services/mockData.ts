@@ -1,6 +1,6 @@
 import { getToday } from '@/utils/date';
 import type { Task, TaskPayload, TaskStatus } from '@/types/task';
-import type { ApiResponse, LoginResponse, UserProfile } from '@/types/user';
+import type { ApiResponse, LoginResponse, RegisterPayload, UserProfile } from '@/types/user';
 
 /**
  * 集中维护的 Mock 数据与 Mock 接口（需求第 17 节）。
@@ -158,6 +158,13 @@ const mockUser: UserProfile = {
 };
 
 export const mockUserApi = {
+  async register(payload: RegisterPayload): Promise<ApiResponse<null>> {
+    if (!payload.name || !payload.email || !payload.password) {
+      throw new Error('请填写完整信息');
+    }
+    return delay(ok(null, '注册成功'));
+  },
+
   async login(): Promise<ApiResponse<LoginResponse>> {
     return delay(
       ok(

@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,15 +17,18 @@ import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { APP_NAME, USE_MOCK } from '@/constants/config';
 import { useAuth } from '@/hooks/useAuth';
-import { alert } from '@/utils/alert';
+import { register } from '@/services/userService';
+import { alert, confirmAsync } from '@/utils/alert';
 
 /** 简单邮箱格式校验。 */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** 登录页（需求第 12 节）。USE_MOCK 时支持模拟登录。 */
+/** 登录/注册页（需求第 12 节）。USE_MOCK 时支持模拟登录。 */
 export default function LoginScreen() {
   const router = useRouter();
   const { login, mockLogin } = useAuth();
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -64,6 +66,48 @@ export default function LoginScreen() {
     }
   }, [email, password, login, mockLogin, router]);
 
+  const handleRegister = useCallback(async () => {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedName) {
+      alert('提示', '请输入用户名');
+      return;
+    }
+    if (!trimmedEmail) {
+      alert('提示', '请输入邮箱');
+      return;
+    }
+    if (!EMAIL_RE.test(trimmedEmail)) {
+      alert('提示', '请输入正确的邮箱格式');
+      return;
+    }
+    if (!trimmedPassword) {
+      alert('提示', '请输入密码');
+      return;
+    }
+    if (trimmedPassword.length < 6) {
+      alert('提示', '密码长度至少6位');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await register({ name: trimmedName, email: trimmedEmail, password: trimmedPassword });
+      confirmAsync('注册成功', '请使用新账号登录', () => {
+        setIsRegisterMode(false);
+        setEmail('');
+        setPassword('');
+        setName('');
+      });
+    } catch (e) {
+      alert('注册失败', e instanceof Error ? e.message : '请稍后重试');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [name, email, password]);
+
   return (
     <SafeAreaView style={styles.safe}>
       <LinearGradient
@@ -83,9 +127,21 @@ export default function LoginScreen() {
               <Ionicons name="checkmark-done-circle" size={64} color={colors.surface} />
             </View>
             <Text style={styles.appName}>{APP_NAME}</Text>
-            <Text style={styles.hint}>登录后即可管理日程任务</Text>
+            <Text style={styles.hint}>{isRegisterMode ? '注册新账号' : '登录后即可管理日程任务'}</Text>
 
             <View style={styles.form}>
+              {isRegisterMode && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="请输入用户名"
+                  placeholderTextColor="rgba(255,255,255,0.6)"
+                  value={name}
+                  onChangeText={setName}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!submitting}
+                />
+              )}
               <TextInput
                 style={styles.input}
                 placeholder="请输入邮箱"
@@ -122,15 +178,25 @@ export default function LoginScreen() {
 
               <TouchableOpacity
                 style={[styles.button, submitting && styles.buttonDisabled]}
-                onPress={handleLogin}
+                onPress={isRegisterMode ? handleRegister : handleLogin}
                 disabled={submitting}
                 activeOpacity={0.85}
               >
                 <View style={styles.buttonInner}>
                   <Text style={globalStyles.primaryButtonText}>
-                    {submitting ? '登录中...' : '登录'}
+                    {submitting ? (isRegisterMode ? '注册中...' : '登录中...') : (isRegisterMode ? '注册' : '登录')}
                   </Text>
                 </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.switchButton}
+                onPress={() => setIsRegisterMode(!isRegisterMode)}
+                disabled={submitting}
+              >
+                <Text style={styles.switchButtonText}>
+                  {isRegisterMode ? '已有账号？去登录' : '没有账号？去注册'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -222,5 +288,13 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
+  },
+  switchButton: {
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  switchButtonText: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
   },
 });
