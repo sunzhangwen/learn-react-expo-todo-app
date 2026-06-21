@@ -11,10 +11,13 @@ type ErrorStateProps = {
 export function ErrorState({ message = '加载失败，请重试', onRetry }: ErrorStateProps) {
   return (
     <View style={styles.container}>
-      <Ionicons name="alert-circle-outline" size={56} color={colors.warning} />
-      <Text style={styles.text}>{message}</Text>
+      <View style={styles.iconContainer}>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.warning} />
+      </View>
+      <Text style={styles.message}>{message}</Text>
       {onRetry ? (
         <TouchableOpacity style={styles.button} onPress={onRetry} activeOpacity={0.8}>
+          <Ionicons name="refresh-outline" size={18} color={colors.surface} />
           <Text style={styles.buttonText}>重试</Text>
         </TouchableOpacity>
       ) : null}
@@ -29,22 +32,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 40,
   },
-  text: {
-    marginTop: 12,
-    fontSize: 14,
+  iconContainer: {
+    width: 88,
+    height: 88,
+    borderRadius: 24,
+    backgroundColor: `${colors.warning}15`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  message: {
+    fontSize: 16,
+    fontWeight: '500',
     color: colors.textSecondary,
     textAlign: 'center',
+    lineHeight: 24,
   },
   button: {
-    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 20,
     paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     backgroundColor: colors.primary,
+    boxShadow: '0px 4px 12px rgba(64, 128, 255, 0.3)',
   },
   buttonText: {
     color: colors.surface,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
 });

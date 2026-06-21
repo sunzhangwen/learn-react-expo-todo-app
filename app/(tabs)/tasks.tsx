@@ -112,7 +112,7 @@ export default function TasksScreen() {
       {/* 悬浮新增按钮（需求第 14 节） */}
       <TouchableOpacity style={styles.fab} onPress={handleCreate} activeOpacity={0.85}>
         <LinearGradient
-          colors={[colors.primary, '#6C5CE7']}
+          colors={colors.gradient.primary}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.fabGradient}

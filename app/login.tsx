@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState } from 'react';
 import {
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,7 +15,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
-import { globalStyles } from '@/constants/styles';
 import { APP_NAME, USE_MOCK } from '@/constants/config';
 import { useAuth } from '@/hooks/useAuth';
 import { register } from '@/services/userService';
@@ -111,53 +111,67 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <LinearGradient
-        colors={[colors.primary, '#6C5CE7']}
+        colors={['#4080FF', '#6C5CE7', '#8B5CF6']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
-        <KeyboardAvoidingView style={styles.flex} behavior="padding">
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <ScrollView
             style={styles.flex}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.logo}>
-              <Ionicons name="checkmark-done-circle" size={64} color={colors.surface} />
+            <View style={styles.logoContainer}>
+              <View style={styles.logo}>
+                <Ionicons name="checkmark-done-circle" size={56} color={colors.surface} />
+              </View>
             </View>
             <Text style={styles.appName}>{APP_NAME}</Text>
-            <Text style={styles.hint}>{isRegisterMode ? '注册新账号' : '登录后即可管理日程任务'}</Text>
+            <Text style={styles.hint}>
+              {isRegisterMode ? '创建新账号开始使用' : '登录后即可管理日程任务'}
+            </Text>
 
             <View style={styles.form}>
               {isRegisterMode && (
+                <View style={styles.inputContainer}>
+                  <Ionicons name="person-outline" size={20} color="rgba(255,255,255,0.5)" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="请输入用户名"
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!submitting}
+                  />
+                </View>
+              )}
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.5)" />
                 <TextInput
                   style={styles.input}
-                  placeholder="请输入用户名"
-                  placeholderTextColor="rgba(255,255,255,0.6)"
-                  value={name}
-                  onChangeText={setName}
+                  placeholder="请输入邮箱"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                   editable={!submitting}
                 />
-              )}
-              <TextInput
-                style={styles.input}
-                placeholder="请输入邮箱"
-                placeholderTextColor="rgba(255,255,255,0.6)"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!submitting}
-              />
-              <View style={styles.passwordRow}>
+              </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.5)" />
                 <TextInput
                   style={styles.passwordInput}
                   placeholder="请输入密码"
-                  placeholderTextColor="rgba(255,255,255,0.6)"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -171,7 +185,7 @@ export default function LoginScreen() {
                   <Ionicons
                     name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                     size={20}
-                    color="rgba(255,255,255,0.7)"
+                    color="rgba(255,255,255,0.6)"
                   />
                 </TouchableOpacity>
               </View>
@@ -182,11 +196,31 @@ export default function LoginScreen() {
                 disabled={submitting}
                 activeOpacity={0.85}
               >
-                <View style={styles.buttonInner}>
-                  <Text style={globalStyles.primaryButtonText}>
-                    {submitting ? (isRegisterMode ? '注册中...' : '登录中...') : (isRegisterMode ? '注册' : '登录')}
+                <LinearGradient
+                  colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.15)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.buttonGradient}
+                >
+                  {submitting ? (
+                    <Ionicons name="sync-outline" size={20} color={colors.surface} />
+                  ) : (
+                    <Ionicons
+                      name={isRegisterMode ? 'person-add-outline' : 'log-in-outline'}
+                      size={20}
+                      color={colors.surface}
+                    />
+                  )}
+                  <Text style={styles.buttonText}>
+                    {submitting
+                      ? isRegisterMode
+                        ? '注册中...'
+                        : '登录中...'
+                      : isRegisterMode
+                        ? '注册'
+                        : '登录'}
                   </Text>
-                </View>
+                </LinearGradient>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -219,82 +253,97 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingTop: 120,
+    paddingHorizontal: 32,
+    paddingTop: 80,
     paddingBottom: 40,
   },
+  logoContainer: {
+    marginBottom: 24,
+  },
   logo: {
-    marginBottom: 16,
+    width: 96,
+    height: 96,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   appName: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: colors.surface,
+    letterSpacing: 0.5,
   },
   hint: {
     marginTop: 12,
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.75)',
     textAlign: 'center',
   },
   form: {
-    marginTop: 32,
+    marginTop: 40,
     width: '100%',
-    gap: 14,
+    gap: 16,
   },
-  input: {
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 16,
-    fontSize: 15,
-    color: colors.surface,
-  },
-  passwordRow: {
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 8,
+    height: 54,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  input: {
+    flex: 1,
+    height: '100%',
+    fontSize: 16,
+    color: colors.surface,
   },
   passwordInput: {
     flex: 1,
-    height: 48,
-    paddingHorizontal: 16,
-    fontSize: 15,
+    height: '100%',
+    fontSize: 16,
     color: colors.surface,
   },
   eyeButton: {
-    paddingHorizontal: 14,
-    height: 48,
+    paddingHorizontal: 8,
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   button: {
-    marginTop: 6,
+    marginTop: 8,
     width: '100%',
-    height: 48,
-    borderRadius: 8,
+    height: 54,
+    borderRadius: 14,
     overflow: 'hidden',
   },
-  buttonInner: {
+  buttonGradient: {
     flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    gap: 8,
+  },
+  buttonText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.surface,
   },
   buttonDisabled: {
-    opacity: 0.5,
+    opacity: 0.6,
   },
   switchButton: {
-    marginTop: 8,
+    marginTop: 12,
     alignItems: 'center',
+    paddingVertical: 8,
   },
   switchButtonText: {
-    fontSize: 14,
+    fontSize: 15,
     color: 'rgba(255,255,255,0.8)',
+    fontWeight: '500',
   },
 });

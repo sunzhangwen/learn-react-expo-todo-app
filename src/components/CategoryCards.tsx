@@ -1,8 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { CATEGORIES } from '@/constants/categories';
 import { colors } from '@/constants/colors';
-import { globalStyles } from '@/constants/styles';
 
 type CategoryCardsProps = {
   counts: {
@@ -18,9 +18,11 @@ export function CategoryCards({ counts }: CategoryCardsProps) {
     <View style={styles.row}>
       {CATEGORIES.map((category) => (
         <View key={category.key} style={styles.card}>
-          <View style={[styles.dot, { backgroundColor: category.color }]} />
-          <Text style={styles.count}>{counts[category.key]}</Text>
-          <Text style={globalStyles.textSecondary}>{category.label}</Text>
+          <View style={[styles.iconContainer, { backgroundColor: `${category.color}15` }]}>
+            <Ionicons name={category.icon} size={20} color={category.color} />
+          </View>
+          <Text style={[styles.count, { color: category.color }]}>{counts[category.key]}</Text>
+          <Text style={styles.label}>{category.label}</Text>
         </View>
       ))}
     </View>
@@ -34,19 +36,29 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    ...globalStyles.card,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.04)',
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginBottom: 8,
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   count: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.textPrimary,
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  label: {
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: '500',
+    color: colors.textSecondary,
   },
 });

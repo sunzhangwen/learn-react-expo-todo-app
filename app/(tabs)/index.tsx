@@ -83,35 +83,53 @@ export default function HomeScreen() {
       ) : error ? (
         <ErrorState message={error} onRetry={refresh} />
       ) : (
-        <ScrollView contentContainerStyle={globalStyles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <StatsRow
             items={[
-              { label: '总任务', value: stats.total },
-              { label: '已完成', value: stats.completed, color: colors.success },
-              { label: '未完成', value: stats.pending, color: colors.warning },
-              { label: '今日待办', value: stats.todayPending },
+              { label: '总任务', value: stats.total, icon: 'layers-outline' },
+              { label: '已完成', value: stats.completed, icon: 'checkmark-circle-outline', color: colors.success },
+              { label: '未完成', value: stats.pending, icon: 'time-outline', color: colors.warning },
+              { label: '今日待办', value: stats.todayPending, icon: 'today-outline' },
             ]}
           />
 
           {featuredTasks.length > 0 ? (
             <View style={styles.section}>
-              <Text style={globalStyles.sectionTitle}>重点任务</Text>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <Ionicons name="star" size={18} color={colors.warning} />
+                  <Text style={styles.sectionTitle}>重点任务</Text>
+                </View>
+                <Text style={styles.badge}>{featuredTasks.length}</Text>
+              </View>
               <View style={styles.list}>
                 {featuredTasks.map((task) => (
                   <TouchableOpacity
                     key={task.id}
                     style={styles.featuredCard}
                     onPress={() => handleOpenTask(task)}
-                    activeOpacity={0.8}
+                    activeOpacity={0.7}
                   >
-                    <Ionicons name="star" size={20} color={colors.warning} />
-                    <View style={styles.featuredBody}>
-                      <Text style={globalStyles.textPrimary} numberOfLines={1}>
-                        {task.title}
-                      </Text>
-                      <Text style={globalStyles.textSecondary}>{task.startTime} 开始</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+                    <LinearGradient
+                      colors={[`${colors.warning}15`, `${colors.warning}05`]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.featuredGradient}
+                    >
+                      <View style={styles.featuredIcon}>
+                        <Ionicons name="star" size={18} color={colors.warning} />
+                      </View>
+                      <View style={styles.featuredBody}>
+                        <Text style={styles.featuredTitle} numberOfLines={1}>
+                          {task.title}
+                        </Text>
+                        <View style={styles.featuredMeta}>
+                          <Ionicons name="time-outline" size={12} color={colors.textTertiary} />
+                          <Text style={styles.featuredTime}>{task.startTime} 开始</Text>
+                        </View>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                    </LinearGradient>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -120,14 +138,21 @@ export default function HomeScreen() {
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={globalStyles.sectionTitle}>最近任务</Text>
+              <Text style={styles.sectionTitle}>最近任务</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/tasks')} hitSlop={8}>
-                <Text style={styles.link}>查看全部</Text>
+                <View style={styles.viewAllButton}>
+                  <Text style={styles.viewAllText}>查看全部</Text>
+                  <Ionicons name="arrow-forward" size={14} color={colors.primary} />
+                </View>
               </TouchableOpacity>
             </View>
 
             {recentTasks.length === 0 ? (
-              <EmptyState message="暂无任务，点击右上角添加" />
+              <EmptyState
+                icon="clipboard-outline"
+                message="暂无任务"
+                submessage="点击下方按钮创建你的第一个任务"
+              />
             ) : (
               <View style={styles.list}>
                 {recentTasks.map((task) => (
@@ -145,13 +170,13 @@ export default function HomeScreen() {
 
           <TouchableOpacity style={styles.primaryButton} onPress={handleCreate} activeOpacity={0.85}>
             <LinearGradient
-              colors={[colors.primary, '#6C5CE7']}
+              colors={colors.gradient.primary}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.primaryButtonGradient}
             >
-              <Ionicons name="add" size={20} color={colors.surface} />
-              <Text style={globalStyles.primaryButtonText}>新增任务</Text>
+              <Ionicons name="add" size={22} color={colors.surface} />
+              <Text style={styles.primaryButtonText}>新增任务</Text>
             </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
@@ -161,43 +186,103 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    gap: 20,
+  },
   section: {
-    gap: 10,
+    gap: 12,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  link: {
-    fontSize: 13,
-    color: colors.primary,
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  badge: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.warning,
+    backgroundColor: `${colors.warning}15`,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
   },
   list: {
     gap: 10,
   },
-  featuredCard: {
+  viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...globalStyles.card,
+    gap: 4,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.primary,
+  },
+  featuredCard: {
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  featuredGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 14,
     gap: 12,
+  },
+  featuredIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: `${colors.warning}20`,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   featuredBody: {
     flex: 1,
     gap: 4,
   },
+  featuredTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  featuredMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  featuredTime: {
+    fontSize: 12,
+    color: colors.textTertiary,
+  },
   primaryButton: {
-    height: 48,
-    borderRadius: 8,
+    height: 52,
+    borderRadius: 14,
     overflow: 'hidden',
+    boxShadow: '0px 4px 16px rgba(64, 128, 255, 0.3)',
   },
   primaryButtonGradient: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
+    gap: 8,
+  },
+  primaryButtonText: {
+    color: colors.surface,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
