@@ -2,8 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { memo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { colors } from '@/constants/colors';
 import { getCategoryMeta } from '@/constants/categories';
+import { useCardHover, Animated } from '@/hooks/useAnimated';
+import { useTheme } from '@/hooks/useTheme';
 import type { Task } from '@/types/task';
 
 type TaskCardProps = {
@@ -14,22 +15,27 @@ type TaskCardProps = {
 };
 
 function TaskCardComponent({ task, onPress, onLongPress, onToggleStatus }: TaskCardProps) {
+  const { colors } = useTheme();
   const category = getCategoryMeta(task.category);
   const completed = task.status === 'completed';
   const timeText = task.endTime ? `${task.startTime} - ${task.endTime}` : task.startTime;
+  const { animatedStyle, onPressIn, onPressOut } = useCardHover();
 
   return (
-    <TouchableOpacity
-      style={[styles.card, completed && styles.cardCompleted]}
-      onPress={() => onPress(task)}
-      onLongPress={() => onLongPress(task)}
-      activeOpacity={0.7}
-    >
+    <Animated.View style={[styles.card, { backgroundColor: colors.surface }, completed && styles.cardCompleted, animatedStyle]}>
+      <TouchableOpacity
+        style={styles.touchable}
+        onPress={() => onPress(task)}
+        onLongPress={() => onLongPress(task)}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        activeOpacity={0.9}
+      >
       <View style={[styles.categoryBar, { backgroundColor: category.color }]} />
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text
-            style={[styles.title, completed && styles.titleCompleted]}
+            style={[styles.title, { color: colors.textPrimary }, completed && { textDecorationLine: 'line-through', color: colors.textTertiary }]}
             numberOfLines={1}
           >
             {task.title}
@@ -43,26 +49,26 @@ function TaskCardComponent({ task, onPress, onLongPress, onToggleStatus }: TaskC
         <View style={styles.metaRow}>
           <View style={styles.metaItem}>
             <Ionicons name="time-outline" size={13} color={colors.textTertiary} />
-            <Text style={styles.metaText}>{timeText}</Text>
+            <Text style={[styles.metaText, { color: colors.textTertiary }]}>{timeText}</Text>
           </View>
           {task.location ? (
             <View style={styles.metaItem}>
               <Ionicons name="location-outline" size={13} color={colors.textTertiary} />
-              <Text style={styles.metaText} numberOfLines={1}>
+              <Text style={[styles.metaText, { color: colors.textTertiary }]} numberOfLines={1}>
                 {task.location}
               </Text>
             </View>
           ) : null}
           {task.isFeatured ? (
-            <View style={styles.featuredBadge}>
+            <View style={[styles.featuredBadge, { backgroundColor: `${colors.warning}12` }]}>
               <Ionicons name="star" size={12} color={colors.warning} />
-              <Text style={styles.featuredText}>重点</Text>
+              <Text style={[styles.featuredText, { color: colors.warning }]}>重点</Text>
             </View>
           ) : null}
         </View>
 
         {task.note ? (
-          <Text style={styles.note} numberOfLines={1}>
+          <Text style={[styles.note, { color: colors.textTertiary }]} numberOfLines={1}>
             {task.note}
           </Text>
         ) : null}
@@ -73,11 +79,12 @@ function TaskCardComponent({ task, onPress, onLongPress, onToggleStatus }: TaskC
         onPress={() => onToggleStatus(task)}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       >
-        <View style={[styles.statusCircle, completed && styles.statusCircleCompleted]}>
-          {completed && <Ionicons name="checkmark" size={16} color={colors.surface} />}
+        <View style={[styles.statusCircle, { borderColor: colors.border }, completed && { backgroundColor: colors.success, borderColor: colors.success }]}>
+          {completed && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
         </View>
       </TouchableOpacity>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -87,11 +94,15 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
     borderRadius: 14,
     padding: 14,
     overflow: 'hidden',
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.04)',
+  },
+  touchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   cardCompleted: {
     opacity: 0.65,
@@ -115,11 +126,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  titleCompleted: {
-    textDecorationLine: 'line-through',
-    color: colors.textTertiary,
   },
   categoryTag: {
     flexDirection: 'row',
@@ -146,7 +152,6 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: colors.textTertiary,
   },
   featuredBadge: {
     flexDirection: 'row',
@@ -154,17 +159,14 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    backgroundColor: `${colors.warning}12`,
     borderRadius: 4,
   },
   featuredText: {
     fontSize: 11,
     fontWeight: '600',
-    color: colors.warning,
   },
   note: {
     fontSize: 12,
-    color: colors.textTertiary,
     marginTop: 8,
     lineHeight: 16,
   },
@@ -176,12 +178,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  statusCircleCompleted: {
-    backgroundColor: colors.success,
-    borderColor: colors.success,
   },
 });
