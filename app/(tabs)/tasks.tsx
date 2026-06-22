@@ -18,9 +18,9 @@ import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
 import { TaskCard } from '@/components/TaskCard';
-import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { useTasks } from '@/hooks/useTasks';
+import { useTheme } from '@/hooks/useTheme';
 import type { Task } from '@/types/task';
 import { alert, confirmAsync } from '@/utils/alert';
 import { formatDateLabel, getToday, isToday } from '@/utils/date';
@@ -29,6 +29,7 @@ import { formatDateLabel, getToday, isToday } from '@/utils/date';
 export default function TasksScreen() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(getToday());
+  const { colors } = useTheme();
   const { tasks, loading, refreshing, error, refresh, toggleStatus, remove } =
     useTasks(selectedDate);
 
@@ -79,14 +80,14 @@ export default function TasksScreen() {
   );
 
   return (
-    <SafeAreaView style={globalStyles.safe} edges={['top']}>
-      <View style={globalStyles.header}>
-        <Text style={globalStyles.headerTitle}>{isToday(selectedDate) ? '今天' : selectedDate}</Text>
+    <SafeAreaView style={[globalStyles.safe, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[globalStyles.header, { borderBottomColor: colors.border }]}>
+        <Text style={[globalStyles.headerTitle, { color: colors.textPrimary }]}>{isToday(selectedDate) ? '今天' : selectedDate}</Text>
       </View>
 
       <DateTabs selectedDate={selectedDate} onSelect={setSelectedDate} />
 
-      <Text style={styles.dateLabel}>{formatDateLabel(selectedDate)}</Text>
+      <Text style={[styles.dateLabel, { color: colors.textSecondary }]}>{formatDateLabel(selectedDate)}</Text>
 
       {loading ? (
         <Loading />
@@ -117,7 +118,7 @@ export default function TasksScreen() {
           end={{ x: 1, y: 1 }}
           style={styles.fabGradient}
         >
-          <Ionicons name="add" size={32} color={colors.surface} />
+          <Ionicons name="add" size={32} color="#FFFFFF" />
         </LinearGradient>
       </TouchableOpacity>
     </SafeAreaView>
@@ -130,7 +131,6 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     paddingBottom: 8,
     fontSize: 13,
-    color: colors.textSecondary,
   },
   listContent: {
     paddingHorizontal: 20,

@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState } from 'react';
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,9 +15,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors } from '@/constants/colors';
 import { APP_NAME, USE_MOCK } from '@/constants/config';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { register } from '@/services/userService';
 import { alert, confirmAsync } from '@/utils/alert';
 
@@ -27,6 +28,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function LoginScreen() {
   const router = useRouter();
   const { login, mockLogin } = useAuth();
+  const { colors: themeColors } = useTheme();
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -108,10 +110,77 @@ export default function LoginScreen() {
     }
   }, [name, email, password]);
 
+  const handleMockLogin = useCallback(async () => {
+    setSubmitting(true);
+    try {
+      await mockLogin();
+      router.replace('/(tabs)');
+    } catch (e) {
+      alert('登录失败', e instanceof Error ? e.message : '请稍后重试');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [mockLogin, router]);
+
+  // Mock 模式：显示简化的模拟登录界面
+  if (USE_MOCK) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: themeColors.background }]}>
+        <LinearGradient
+          colors={themeColors.gradient.primary}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradient}
+        >
+          <View style={styles.mockContainer}>
+            <View style={styles.logoContainer}>
+              <View style={[styles.logo, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                <Ionicons name="checkmark-done-circle" size={56} color="#FFFFFF" />
+              </View>
+            </View>
+            <Text style={styles.appName}>{APP_NAME}</Text>
+            <Text style={styles.hint}>开发模式 - 点击下方按钮快速体验</Text>
+
+            <TouchableOpacity
+              style={[styles.mockButton, submitting && styles.buttonDisabled]}
+              onPress={handleMockLogin}
+              disabled={submitting}
+              activeOpacity={0.85}
+            >
+              <LinearGradient
+                colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.15)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.buttonGradient}
+              >
+                {submitting ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Ionicons name="flash-outline" size={22} color="#FFFFFF" />
+                )}
+                <Text style={styles.buttonText}>
+                  {submitting ? '登录中...' : '模拟登录'}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.mockInfo}>
+              <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.6)" />
+              <Text style={styles.mockInfoText}>
+                当前为开发模式，使用模拟数据
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+      </SafeAreaView>
+    );
+  }
+
+  // 正常模式：显示完整的登录/注册表单
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: themeColors.background }]}>
       <LinearGradient
-        colors={['#4080FF', '#6C5CE7', '#8B5CF6']}
+        colors={themeColors.gradient.primary}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -127,8 +196,8 @@ export default function LoginScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.logoContainer}>
-              <View style={styles.logo}>
-                <Ionicons name="checkmark-done-circle" size={56} color={colors.surface} />
+              <View style={[styles.logo, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+                <Ionicons name="checkmark-done-circle" size={56} color="#FFFFFF" />
               </View>
             </View>
             <Text style={styles.appName}>{APP_NAME}</Text>
@@ -138,10 +207,10 @@ export default function LoginScreen() {
 
             <View style={styles.form}>
               {isRegisterMode && (
-                <View style={styles.inputContainer}>
+                <View style={[styles.inputContainer, { borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                   <Ionicons name="person-outline" size={20} color="rgba(255,255,255,0.5)" />
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { color: '#FFFFFF' }]}
                     placeholder="请输入用户名"
                     placeholderTextColor="rgba(255,255,255,0.5)"
                     value={name}
@@ -152,10 +221,10 @@ export default function LoginScreen() {
                   />
                 </View>
               )}
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer, { borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                 <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.5)" />
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { color: '#FFFFFF' }]}
                   placeholder="请输入邮箱"
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   value={email}
@@ -166,10 +235,10 @@ export default function LoginScreen() {
                   editable={!submitting}
                 />
               </View>
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer, { borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                 <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.5)" />
                 <TextInput
-                  style={styles.passwordInput}
+                  style={[styles.passwordInput, { color: '#FFFFFF' }]}
                   placeholder="请输入密码"
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   value={password}
@@ -203,12 +272,12 @@ export default function LoginScreen() {
                   style={styles.buttonGradient}
                 >
                   {submitting ? (
-                    <Ionicons name="sync-outline" size={20} color={colors.surface} />
+                    <Ionicons name="sync-outline" size={20} color="#FFFFFF" />
                   ) : (
                     <Ionicons
                       name={isRegisterMode ? 'person-add-outline' : 'log-in-outline'}
                       size={20}
-                      color={colors.surface}
+                      color="#FFFFFF"
                     />
                   )}
                   <Text style={styles.buttonText}>
@@ -228,7 +297,7 @@ export default function LoginScreen() {
                 onPress={() => setIsRegisterMode(!isRegisterMode)}
                 disabled={submitting}
               >
-                <Text style={styles.switchButtonText}>
+                <Text style={[styles.switchButtonText, { color: 'rgba(255,255,255,0.8)' }]}>
                   {isRegisterMode ? '已有账号？去登录' : '没有账号？去注册'}
                 </Text>
               </TouchableOpacity>
@@ -243,13 +312,18 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   gradient: {
     flex: 1,
   },
   flex: {
     flex: 1,
+  },
+  mockContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
   },
   scrollContent: {
     alignItems: 'center',
@@ -264,14 +338,13 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   appName: {
     fontSize: 28,
     fontWeight: '800',
-    color: colors.surface,
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   hint: {
@@ -279,6 +352,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'rgba(255,255,255,0.75)',
     textAlign: 'center',
+  },
+  mockButton: {
+    marginTop: 48,
+    width: '100%',
+    maxWidth: 280,
+    height: 56,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  mockInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 32,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+  },
+  mockInfoText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.7)',
   },
   form: {
     marginTop: 40,
@@ -291,8 +386,6 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-    backgroundColor: 'rgba(255,255,255,0.1)',
     paddingHorizontal: 16,
     gap: 12,
   },
@@ -300,13 +393,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     fontSize: 16,
-    color: colors.surface,
   },
   passwordInput: {
     flex: 1,
     height: '100%',
     fontSize: 16,
-    color: colors.surface,
   },
   eyeButton: {
     paddingHorizontal: 8,
@@ -331,7 +422,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 17,
     fontWeight: '700',
-    color: colors.surface,
+    color: '#FFFFFF',
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -343,7 +434,6 @@ const styles = StyleSheet.create({
   },
   switchButtonText: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.8)',
     fontWeight: '500',
   },
 });

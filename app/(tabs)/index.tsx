@@ -11,15 +11,16 @@ import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
 import { StatsRow } from '@/components/StatsRow';
 import { TaskCard } from '@/components/TaskCard';
-import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { useTasks } from '@/hooks/useTasks';
+import { useTheme } from '@/hooks/useTheme';
 import type { Task } from '@/types/task';
 import { getToday } from '@/utils/date';
 
 /** 首页（需求第 6 节）。 */
 export default function HomeScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { tasks, loading, error, refresh, toggleStatus } = useTasks();
 
   // 页面聚焦时刷新统计（需求第 3 节 useFocusEffect）。
@@ -70,9 +71,9 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView style={globalStyles.safe} edges={['top']}>
-      <View style={globalStyles.header}>
-        <Text style={globalStyles.headerTitle}>首页</Text>
+    <SafeAreaView style={[globalStyles.safe, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[globalStyles.header, { borderBottomColor: colors.border }]}>
+        <Text style={[globalStyles.headerTitle, { color: colors.textPrimary }]}>首页</Text>
         <TouchableOpacity onPress={handleCreate} hitSlop={8}>
           <Ionicons name="add-circle" size={28} color={colors.primary} />
         </TouchableOpacity>
@@ -98,9 +99,9 @@ export default function HomeScreen() {
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleRow}>
                   <Ionicons name="star" size={18} color={colors.warning} />
-                  <Text style={styles.sectionTitle}>重点任务</Text>
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>重点任务</Text>
                 </View>
-                <Text style={styles.badge}>{featuredTasks.length}</Text>
+                <Text style={[styles.badge, { color: colors.warning, backgroundColor: `${colors.warning}15` }]}>{featuredTasks.length}</Text>
               </View>
               <View style={styles.list}>
                 {featuredTasks.map((task) => (
@@ -116,16 +117,16 @@ export default function HomeScreen() {
                       end={{ x: 1, y: 1 }}
                       style={styles.featuredGradient}
                     >
-                      <View style={styles.featuredIcon}>
+                      <View style={[styles.featuredIcon, { backgroundColor: `${colors.warning}20` }]}>
                         <Ionicons name="star" size={18} color={colors.warning} />
                       </View>
                       <View style={styles.featuredBody}>
-                        <Text style={styles.featuredTitle} numberOfLines={1}>
+                        <Text style={[styles.featuredTitle, { color: colors.textPrimary }]} numberOfLines={1}>
                           {task.title}
                         </Text>
                         <View style={styles.featuredMeta}>
                           <Ionicons name="time-outline" size={12} color={colors.textTertiary} />
-                          <Text style={styles.featuredTime}>{task.startTime} 开始</Text>
+                          <Text style={[styles.featuredTime, { color: colors.textTertiary }]}>{task.startTime} 开始</Text>
                         </View>
                       </View>
                       <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
@@ -138,10 +139,10 @@ export default function HomeScreen() {
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>最近任务</Text>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>最近任务</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/tasks')} hitSlop={8}>
                 <View style={styles.viewAllButton}>
-                  <Text style={styles.viewAllText}>查看全部</Text>
+                  <Text style={[styles.viewAllText, { color: colors.primary }]}>查看全部</Text>
                   <Ionicons name="arrow-forward" size={14} color={colors.primary} />
                 </View>
               </TouchableOpacity>
@@ -207,13 +208,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.textPrimary,
   },
   badge: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.warning,
-    backgroundColor: `${colors.warning}15`,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
@@ -229,7 +227,6 @@ const styles = StyleSheet.create({
   viewAllText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.primary,
   },
   featuredCard: {
     borderRadius: 14,
@@ -245,7 +242,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: `${colors.warning}20`,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -256,7 +252,6 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.textPrimary,
   },
   featuredMeta: {
     flexDirection: 'row',
@@ -265,7 +260,6 @@ const styles = StyleSheet.create({
   },
   featuredTime: {
     fontSize: 12,
-    color: colors.textTertiary,
   },
   primaryButton: {
     height: 52,
@@ -281,7 +275,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
