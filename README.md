@@ -11,7 +11,10 @@
 - **axios**（统一接口封装）
 - **@react-native-async-storage/async-storage**（本地存储）
 - **react-native-safe-area-context**（安全区域）
+- **react-native-reanimated** ~4.1.0（动画）
 - **@expo/vector-icons**（图标）
+- **expo-linear-gradient**（渐变）
+- **expo-blur**（模糊效果）
 
 > 所有 Expo 相关依赖均通过 `npx expo install` 对齐 SDK 54。
 
@@ -44,36 +47,63 @@ app/
 
 ```text
 src/
-├── components/   # 通用与业务组件（TaskCard / TaskForm / TimePickerModal / DateTabs / 状态组件等）
-├── hooks/        # useAuth(Context) / useTasks / useUserProfile
+├── components/   # 通用与业务组件（TaskCard / TaskForm / TimePickerModal / DateTabs / ThemeSelector / 状态组件等）
+├── hooks/        # useAuth(Context) / useTasks / useUserProfile / useTheme / useAnimated
 ├── services/     # api(axios 实例) / taskService / userService / mockData
 ├── storage/      # tokenStorage（AsyncStorage 封装）
-├── constants/    # categories / colors / config / styles
+├── constants/    # categories / colors / config / styles / themes / designTokens
 ├── types/        # task / user 类型
 └── utils/        # date / validators / alert（跨平台弹窗）
 ```
 
-## 全局样式
+## 设计系统
 
-统一定义在 `src/constants/styles.ts`，通过 `globalStyles` 导出，避免各组件重复定义：
+### 设计 Token
 
-| 样式名 | 用途 |
+项目使用设计 Token 系统统一管理设计规范，定义在 `src/constants/designTokens.ts`：
+
+| Token 类型 | 说明 |
 | --- | --- |
-| `safe` | 页面安全区域容器（flex:1 + 背景色） |
-| `center` | 居中布局容器 |
-| `card` | 白色卡片（圆角 + 背景色） |
-| `header` / `headerTitle` | 页面头部布局与标题 |
-| `title` / `subtitle` | 章节标题 / 副标题 |
-| `textPrimary` / `textSecondary` / `textTertiary` | 不同层级的文字样式 |
-| `primaryButton` / `primaryButtonText` | 主色按钮及文字 |
-| `secondaryButton` / `secondaryButtonText` | 描边按钮及文字 |
-| `flex` | flex:1 容器 |
-| `content` | 内容区域（水平内边距 + 间距） |
-| `sectionTitle` | 章节标题 |
-| `divider` | 分割线 |
-| `errorText` | 错误提示文字 |
+| `spacing` | 间距系统（4pt base）：xxs(2) / xs(4) / sm(8) / md(12) / lg(16) / xl(20) / xxl(24) / xxxl(32) |
+| `borderRadius` | 圆角系统：xs(4) / sm(6) / md(8) / lg(10) / xl(12) / xxl(14) / xxxl(16) / huge(20) |
+| `shadows` | 阴影系统：none / sm / md / lg / xl / xxl / float / button |
+| `fontSize` | 字体大小：xxs(10) / xs(11) / sm(12) / md(13) / base(14) / lg(15) / xl(16) / xxl(17) / xxxl(18) / huge(20) / massive(24) |
+| `fontWeight` | 字体粗细：regular(400) / medium(500) / semibold(600) / bold(700) / extrabold(800) |
+| `animation` | 动画时长：fast(150) / normal(250) / slow(350) / verySlow(500) |
+| `opacity` | 不透明度：transparent(0) / ultraLight(0.1) / light(0.3) / normal(0.7) / opaque(1) |
+| `zIndex` | 层级：base(0) / dropdown(10) / sticky(20) / fab(30) / modal(50) / max(100) |
 
-使用示例：
+### 主题系统
+
+支持 3 种主题 + 暗黑模式，定义在 `src/constants/themes.ts`：
+
+| 主题名 | 主色调 | 描述 |
+| --- | --- | --- |
+| `fresh` | 绿色 `#2ECC71` | 清新、自然、舒适 |
+| `warm` | 橙色 `#FF6B35` | 温暖、活力、热情 |
+| `elegant` | 靛蓝 `#3F51B5` | 专业、稳重、优雅 |
+
+用户可在"设置中心"中切换主题和暗黑模式，设置自动持久化到 AsyncStorage。
+
+### 动画系统
+
+使用 `react-native-reanimated` 实现流畅动画，提供多种动画 Hook：
+
+| Hook | 说明 |
+| --- | --- |
+| `useCardHover` | 卡片悬浮效果（缩放 + 位移 + 阴影） |
+| `useButtonPress` | 按钮点击缩放动画 |
+| `useFadeIn` | 淡入动画 |
+| `useSlideIn` | 滑入动画（支持上下左右） |
+| `useScaleIn` | 缩放淡入动画 |
+| `useShake` | 抖动动画 |
+| `usePulse` | 脉冲动画 |
+| `useProgressAnimation` | 进度条动画 |
+| `useStaggeredItem` | 列表项交错动画 |
+
+### 全局样式
+
+统一定义在 `src/constants/styles.ts`，通过 `globalStyles` 导出：
 
 ```tsx
 import { globalStyles } from '@/constants/styles';
@@ -181,9 +211,13 @@ EXPO_PUBLIC_USE_MOCK=true
 - [x] 认证状态 Context 共享（AuthProvider）
 - [x] Mock 模式独立运行 + 真实 API 可配置联调
 - [x] 本地缓存：请求成功写缓存，失败读缓存恢复
-- [x] 全局样式抽取（`globalStyles`），减少组件重复定义
 - [x] 跨平台弹窗适配（移动端 / 网页端）
 - [x] 后端接口规范文档（API_SPEC.md）
+- [x] 多主题切换：3 种主题（清新自然 / 温暖活力 / 优雅专业）
+- [x] 暗黑模式：支持浅色 / 深色模式切换
+- [x] 设计 Token 系统：统一管理间距、圆角、阴影、字体等设计规范
+- [x] 动画系统：使用 react-native-reanimated 实现多种交互动画
+- [x] 设置中心：主题设置、暗黑模式开关
 
 ## 常见问题
 
