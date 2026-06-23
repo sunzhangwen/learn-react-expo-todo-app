@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "scheme": "todoapp",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#F5F7FA"
