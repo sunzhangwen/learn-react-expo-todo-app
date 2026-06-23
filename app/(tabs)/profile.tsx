@@ -5,10 +5,8 @@ import { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CategoryCards } from '@/components/CategoryCards';
 import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
-import { StatsRow } from '@/components/StatsRow';
 import { globalStyles } from '@/constants/styles';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
@@ -39,6 +37,8 @@ export default function ProfileScreen() {
     (key: string) => {
       if (key === 'settings') {
         router.push('/settings');
+      } else if (key === 'stats') {
+        router.push('/stats');
       } else {
         alert('提示', '功能开发中');
       }
@@ -112,19 +112,6 @@ export default function ProfileScreen() {
                 <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{user.email}</Text>
               </View>
             </View>
-          </View>
-
-          <StatsRow
-            items={[
-              { label: '今日待办', value: user.stats.todayPending, icon: 'today-outline', color: colors.primary },
-              { label: '发布事项', value: user.stats.totalPublished, icon: 'document-text-outline', color: colors.textSecondary },
-              { label: '已完成', value: user.stats.totalCompleted, icon: 'checkmark-circle-outline', color: colors.success },
-            ]}
-          />
-
-          <View style={styles.sectionBlock}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>分类统计</Text>
-            <CategoryCards counts={user.categories} />
           </View>
 
           {/* 菜单列表 */}

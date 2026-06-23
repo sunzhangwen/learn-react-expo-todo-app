@@ -57,6 +57,7 @@ function AuthGuard() {
       >
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" />
+        <Stack.Screen name="stats" />
         <Stack.Screen name="task-form" options={{ presentation: 'modal' }} />
         <Stack.Screen name="task-detail/[id]" />
       </Stack>
