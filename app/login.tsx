@@ -23,7 +23,7 @@ import { alert, confirmAsync } from '@/utils/alert';
 /** 简单邮箱格式校验。 */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** 登录/注册页（需求第 12 节）。USE_MOCK 时支持模拟登录。 */
+/** 登录/注册页（需求第 12 节）。USE_MOCK 时显示模拟登录，直接一键登录。 */
 export default function LoginScreen() {
   const router = useRouter();
   const { login, mockLogin } = useAuth();
@@ -33,6 +33,18 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleMockLogin = useCallback(async () => {
+    setSubmitting(true);
+    try {
+      await mockLogin();
+      router.replace('/(tabs)');
+    } catch (e) {
+      alert('登录失败', e instanceof Error ? e.message : '请稍后重试');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [mockLogin, router]);
 
   const handleLogin = useCallback(async () => {
     const trimmedEmail = email.trim();
@@ -53,18 +65,14 @@ export default function LoginScreen() {
 
     setSubmitting(true);
     try {
-      if (USE_MOCK) {
-        await mockLogin();
-      } else {
-        await login(trimmedEmail, trimmedPassword);
-      }
+      await login(trimmedEmail, trimmedPassword);
       router.replace('/(tabs)');
     } catch (e) {
       alert('登录失败', e instanceof Error ? e.message : '请稍后重试');
     } finally {
       setSubmitting(false);
     }
-  }, [email, password, login, mockLogin, router]);
+  }, [email, password, login, router]);
 
   const handleRegister = useCallback(async () => {
     const trimmedName = name.trim();
@@ -107,6 +115,39 @@ export default function LoginScreen() {
       setSubmitting(false);
     }
   }, [name, email, password]);
+
+  if (USE_MOCK) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <LinearGradient
+          colors={[colors.primary, '#6C5CE7']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradient}
+        >
+          <View style={styles.mockContainer}>
+            <View style={styles.logo}>
+              <Ionicons name="checkmark-done-circle" size={64} color={colors.surface} />
+            </View>
+            <Text style={styles.appName}>{APP_NAME}</Text>
+            <Text style={styles.hint}>模拟模式 · 无需输入账号密码</Text>
+
+            <TouchableOpacity
+              style={[styles.mockButton, submitting && styles.buttonDisabled]}
+              onPress={handleMockLogin}
+              disabled={submitting}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="log-in-outline" size={22} color={colors.primary} />
+              <Text style={styles.mockButtonText}>
+                {submitting ? '登录中...' : '模拟登录'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -296,5 +337,27 @@ const styles = StyleSheet.create({
   switchButtonText: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
+  },
+  mockContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  mockButton: {
+    marginTop: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    width: '100%',
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.surface,
+  },
+  mockButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.primary,
   },
 });
