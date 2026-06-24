@@ -4,10 +4,8 @@ import { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CategoryCards } from '@/components/CategoryCards';
 import { ErrorState } from '@/components/ErrorState';
 import { Loading } from '@/components/Loading';
-import { StatsRow } from '@/components/StatsRow';
 import { colors } from '@/constants/colors';
 import { globalStyles } from '@/constants/styles';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,9 +32,16 @@ export default function ProfileScreen() {
     }, [refresh]),
   );
 
-  const handleMenuPress = useCallback(() => {
-    alert('提示', '功能开发中');
-  }, []);
+  const handleMenuPress = useCallback(
+    (key: string) => {
+      if (key === 'stats') {
+        router.push('/stats');
+      } else {
+        alert('提示', '功能开发中');
+      }
+    },
+    [router],
+  );
 
   const handleLogout = useCallback(() => {
     confirmAsync('退出登录', '确定要退出登录吗？', () => {
@@ -69,7 +74,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={globalStyles.safe} edges={['top']}>
       <View style={globalStyles.header}>
         <Text style={globalStyles.headerTitle}>我的</Text>
-        <TouchableOpacity onPress={handleMenuPress} hitSlop={8}>
+        <TouchableOpacity onPress={() => alert('提示', '功能开发中')} hitSlop={8}>
           <Ionicons name="ellipsis-horizontal" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
@@ -92,26 +97,13 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <StatsRow
-            items={[
-              { label: '今日待办', value: user.stats.todayPending },
-              { label: '发布事项', value: user.stats.totalPublished },
-              { label: '已完成', value: user.stats.totalCompleted, color: colors.success },
-            ]}
-          />
-
-          <View style={styles.sectionBlock}>
-            <Text style={globalStyles.sectionTitle}>分类统计</Text>
-            <CategoryCards counts={user.categories} />
-          </View>
-
           {/* 菜单列表 */}
           <View style={styles.menuCard}>
             {MENU_ITEMS.map((item, index) => (
               <TouchableOpacity
                 key={item.key}
                 style={[styles.menuRow, index > 0 && styles.menuRowBorder]}
-                onPress={handleMenuPress}
+                onPress={() => handleMenuPress(item.key)}
                 activeOpacity={0.7}
               >
                 <Ionicons name={item.icon} size={20} color={colors.textSecondary} />

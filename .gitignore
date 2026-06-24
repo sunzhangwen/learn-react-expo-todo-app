@@ -43,6 +43,7 @@ yarn-error.*
 screenshot/
 
 # Others
+.mimocode/
 *REQUIREMENT.md
 API_SPEC.md
 start.bat

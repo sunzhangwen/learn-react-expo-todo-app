@@ -65,6 +65,13 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: '数据统计',
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
