@@ -29,7 +29,8 @@ app/
     ├── tasks.tsx            # 任务列表页
     ├── calendar.tsx         # 日历占位页
     ├── contacts.tsx         # 通讯占位页
-    └── profile.tsx          # 我的页面
+    ├── profile.tsx          # 我的页面
+    └── stats.tsx            # 数据统计页（从"我的"菜单进入）
 ```
 
 导航约定：
@@ -37,6 +38,7 @@ app/
 - 新增任务：`/task-form?mode=create&date=YYYY-MM-DD`
 - 编辑任务：`/task-form?mode=edit&id=<taskId>`
 - 任务详情：`/task-detail/<taskId>`
+- 数据统计：`/stats`（从"我的"菜单进入）
 - 未登录时自动跳转 `/login`（登录态守卫）
 - 登录成功后自动跳转 `/(tabs)`
 
@@ -125,7 +127,7 @@ EXPO_PUBLIC_USE_MOCK=true
 
 ## Mock 模式 / 真实 API 切换
 
-- `EXPO_PUBLIC_USE_MOCK=true`：使用集中维护的 Mock 数据（`src/services/mockData.ts`），不请求后端，支持增删改与状态切换，接口模拟 300~500ms 延迟。
+- `EXPO_PUBLIC_USE_MOCK=true`：使用集中维护的 Mock 数据（`src/services/mockData.ts`），不请求后端，支持增删改与状态切换，接口模拟 300~500ms 延迟。登录页显示简化界面，点击"模拟登录"按钮即可一键登录。
 - `EXPO_PUBLIC_USE_MOCK=false`：调用真实后端，地址取 `EXPO_PUBLIC_API_BASE_URL`。
 
 接口约定（真实模式）：
@@ -152,7 +154,7 @@ EXPO_PUBLIC_USE_MOCK=true
 - 登录页支持注册功能：点击"没有账号？去注册"切换到注册模式，填写用户名、邮箱、密码后注册，注册成功提示并自动跳转回登录页。
 - `useAuth` 基于 React Context 实现，`AuthProvider` 包裹在根布局中，全 App 共享同一份认证状态。
 - 根布局 `_layout.tsx` 包含登录态守卫：未登录自动跳转登录页，已登录自动跳转首页。
-- `USE_MOCK=true` 时登录页走模拟登录，`USE_MOCK=false` 时调用真实后端 `POST /auth/login`。
+- `USE_MOCK=true` 时登录页显示简化界面，点击"模拟登录"按钮即可一键登录，无需输入账号密码；`USE_MOCK=false` 时调用真实后端 `POST /auth/login`。
 
 ## 跨平台兼容
 
@@ -173,13 +175,14 @@ EXPO_PUBLIC_USE_MOCK=true
 - [x] 新增 / 编辑任务：字段校验、键盘避让、提交禁用态、重点任务开关、时间滚轮选择器
 - [x] 时间选择滚轮：点击时间输入区域弹出底部面板，滚动选择时/分，自动吸附，边界回弹
 - [x] 任务详情：完整字段展示、编辑 / 删除 / 切换状态、重点任务状态
-- [x] 我的页面：用户信息、任务统计、分类统计、菜单、退出登录
+- [x] 我的页面：用户信息、菜单列表、退出登录
+- [x] 数据统计页：任务概况（今日待办、发布事项、已完成）、分类统计（工作、个人、活动）
 - [x] 日历 / 通讯占位页：「功能开发中，敬请期待」
 - [x] 登录页：邮箱 + 密码登录、邮箱格式校验、密码显示/隐藏切换
 - [x] 注册功能：登录页切换注册模式、用户名/邮箱/密码表单、注册成功提示并跳转登录页
 - [x] 登录态守卫：未登录自动跳转登录页
 - [x] 认证状态 Context 共享（AuthProvider）
-- [x] Mock 模式独立运行 + 真实 API 可配置联调
+- [x] Mock 模式独立运行（简化登录页 + 真实 API 可配置联调）
 - [x] 本地缓存：请求成功写缓存，失败读缓存恢复
 - [x] 全局样式抽取（`globalStyles`），减少组件重复定义
 - [x] 跨平台弹窗适配（移动端 / 网页端）
